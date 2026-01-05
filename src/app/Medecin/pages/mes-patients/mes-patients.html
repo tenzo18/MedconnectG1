@@ -1,0 +1,269 @@
+<div class="max-w-7xl mx-auto space-y-10 animate-fadeIn">
+  <!-- En-tête Médical Premium -->
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4 border-b border-slate-100">
+    <div class="space-y-4">
+      <h1 class="text-3xl font-bold text-slate-800 tracking-tight">
+        Mes Patients
+      </h1>
+      <p class="text-slate-500 text-base max-w-2xl font-normal leading-relaxed">
+        Gérez votre file active et accédez instantanément aux dossiers médicaux partagés par vos patients.
+      </p>
+    </div>
+
+    <!-- Barre de recherche Intégrée Stylisée -->
+    <!-- <div class="relative w-full lg:w-96 group">
+      <div
+        class="relative flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm focus-within:border-primary/50 transition-all">
+        <span class="material-symbols-outlined text-slate-400 px-3">search</span>
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterPatients()" placeholder="Rechercher par nom..."
+          class="bg-transparent border-none focus:ring-0 text-slate-600 font-medium placeholder:text-slate-400 w-full text-sm" />
+      </div>
+    </div> -->
+  </div>
+
+  <div
+    class="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="relative w-full md:w-96">
+      <span
+        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterPatients()"
+        placeholder="Rechercher par nom ou email..."
+        class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:bg-white focus:border-primary transition-all outline-none" />
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <select [(ngModel)]="selectedFilter" (change)="filterPatients()"
+        class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-600 focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer">
+        <option value="">Tous les accès</option>
+        <option value="Total">Accès Total</option>
+        <option value="Limité">Accès Limité</option>
+        <option value="Aucun">Aucun Accès</option>
+      </select>
+
+      <button (click)="actualiserPatients()"
+        class="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+
+
+    </div>
+  </div>
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Chargement de vos patients..." icon="groups"></app-loading-spinner>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && error"
+    class="bg-rose-50 border border-rose-100 rounded-xl p-6 flex items-center gap-4 text-rose-600">
+    <span class="material-symbols-outlined">error</span>
+    <p class="font-medium">{{ error }}</p>
+    <button (click)="loadPatients()"
+      class="ml-auto px-4 py-2 bg-rose-600 text-white rounded-lg text-sm font-bold hover:bg-rose-700 transition-all">Réessayer</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="space-y-8">
+
+    <!-- Stats Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <span class="material-symbols-outlined text-xl">group</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Total Patients</p>
+            <p class="text-xl font-bold text-slate-800">{{ mesPatients.length }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined text-xl">trending_up</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Actifs ce mois</p>
+            <p class="text-xl font-bold text-slate-800">{{ getPatientsActifs() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+            <span class="material-symbols-outlined text-xl">medical_information</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Dossiers</p>
+            <p class="text-xl font-bold text-slate-800">{{ getTotalDossiers() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
+            <span class="material-symbols-outlined text-xl">calendar_today</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">RDV à venir</p>
+            <p class="text-xl font-bold text-slate-800">{{ getRendezVousProchains() }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patients List Table -->
+    <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+      <!-- Table Header -->
+      <div class="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Liste des Patients</h2>
+          <p class="text-slate-400 text-xs mt-1">Affichage de {{ getPaginatedPatients().length }} patients sur {{
+            filteredPatients.length }}</p>
+        </div>
+      </div>
+
+      <!-- Scrollable Table Container -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[800px]">
+          <thead>
+            <tr class="bg-slate-50/50">
+              <th class="px-6 py-4 font-semibold text-slate-400 text-[11px] uppercase tracking-wider">Patient</th>
+              <th class="px-6 py-4 font-semibold text-slate-400 text-[11px] uppercase tracking-wider text-center">Accès
+              </th>
+              <th class="px-6 py-4 font-semibold text-slate-400 text-[11px] uppercase tracking-wider text-center">Statut
+              </th>
+              <th class="px-6 py-4 font-semibold text-slate-400 text-[11px] uppercase tracking-wider text-right">Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let patient of getPaginatedPatients(); trackBy: trackByPatient"
+              class="group hover:bg-slate-50/50 transition-colors">
+
+              <!-- Patient Info -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-4">
+                  <div class="relative">
+                    <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + patient.nom + ' ' + patient.prenom"
+                      [alt]="patient.nom"
+                      class="rounded-full w-10 h-10 md:w-11 md:h-11 object-cover border-2 border-slate-100 group-hover:border-primary/20 transition-colors">
+                    <div
+                      class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-sm"
+                      title="Actif"></div>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors">{{
+                      patient.nom }} {{ patient.prenom }}</h3>
+                    <p class="text-slate-400 text-xs">{{ patient.email }}</p>
+                    <div class="flex items-center gap-3 mt-1.5">
+                      <span class="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
+                        <span class="material-symbols-outlined text-[14px]">history</span>
+                        Dernier contact : {{ getTimeAgo(patient.dernierContact) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Niveau d'Accès -->
+              <td class="px-6 py-4">
+                <div class="flex flex-col items-center gap-1.5">
+                  <span [ngClass]="{
+                      'bg-emerald-50 text-emerald-600': patient.niveauAcces === 'Total',
+                      'bg-amber-50 text-amber-600': patient.niveauAcces === 'Limité',
+                      'bg-slate-100 text-slate-500': patient.niveauAcces === 'Aucun'
+                    }" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                    {{ patient.niveauAcces }}
+                  </span>
+                  <p class="text-[10px] text-slate-400 font-medium">{{ patient.nombreDossiers }} dossiers accessibles
+                  </p>
+                </div>
+              </td>
+
+              <!-- Statut -->
+              <td class="px-6 py-4 text-center">
+                <span
+                  [ngClass]="isPatientActive(patient) ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'"
+                  class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-tight inline-block">
+                  {{ isPatientActive(patient) ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button type="button" (click)="envoyerMessage(patient)"
+                    class="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all"
+                    title="Envoyer Message">
+                    <span class="material-symbols-outlined text-xl">chat</span>
+                  </button>
+                  <button type="button" (click)="planifierRendezVous(patient)"
+                    class="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
+                    title="Planifier RDV">
+                    <span class="material-symbols-outlined text-xl">event</span>
+                  </button>
+                  <a [routerLink]="['/medecin/dossier-patient', patient.idPatient]"
+                    class="ml-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-dark transition-all">
+                    <span class="material-symbols-outlined text-sm">folder_open</span>
+                    Dossier
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="filteredPatients.length === 0">
+              <td colspan="4" class="py-16 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl text-slate-200">person_search</span>
+                  </div>
+                  <div class="max-w-xs">
+                    <p class="text-slate-800 font-bold">Aucun patient trouvé</p>
+                    <p class="text-slate-400 text-xs mt-1">
+                      {{ searchTerm ? 'Aucun résultat ne correspond à votre recherche.' : 'Vous n\'avez pas encore de
+                      patients connectés à votre compte.' }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div *ngIf="filteredPatients.length > 0"
+        class="px-6 py-4 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
+        <p class="text-[12px] font-medium text-slate-400">
+          Affichage de <span class="text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> à <span
+            class="text-slate-700">{{ Math.min(currentPage * itemsPerPage, filteredPatients.length) }}</span> sur <span
+            class="text-slate-700">{{ filteredPatients.length }}</span> patients
+        </p>
+
+        <div class="flex items-center gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+            class="p-1 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-primary hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            <span class="material-symbols-outlined text-xl">chevron_left</span>
+          </button>
+
+          <div class="flex items-center gap-1">
+            <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+              [ngClass]="page === currentPage ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20' : 'bg-white text-slate-600 border-slate-200 hover:border-primary hover:text-primary'"
+              class="w-8 h-8 rounded-lg border text-xs font-bold transition-all">
+              {{ page }}
+            </button>
+          </div>
+
+          <button (click)="nextPage()" [disabled]="currentPage === getTotalPages()"
+            class="p-1 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-primary hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            <span class="material-symbols-outlined text-xl">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

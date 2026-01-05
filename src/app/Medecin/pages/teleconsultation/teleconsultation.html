@@ -1,0 +1,50 @@
+<div class="h-full w-full flex items-center justify-center bg-gray-900 p-4">
+  <div class="w-full max-w-7xl h-full flex flex-col items-center justify-center">
+    
+    <div class="flex-1 w-full bg-black rounded-xl relative overflow-hidden flex items-center justify-center">
+      
+      <div *ngIf="callStatus === 'connecting'" class="text-white text-xl flex items-center gap-4">
+        <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+        Connexion à la salle avec {{ patientName }}...
+      </div>
+      
+      <div *ngIf="callStatus === 'active' && !isVideoOn" class="text-white text-xl">
+        Vidéo désactivée
+      </div>
+      
+      <div *ngIf="callStatus === 'ended'" class="text-white text-xl">
+        Appel terminé
+      </div>
+
+      <div *ngIf="callStatus === 'active'" class="absolute top-4 right-4 h-32 w-48 bg-gray-700 rounded-lg border-2 border-primary/50 overflow-hidden">
+        <div class="h-full w-full bg-center bg-cover flex items-center justify-center text-white/80" [ngClass]="{'bg-black': !isVideoOn}">
+          <span class="material-symbols-outlined text-4xl">person</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full mt-4 p-4 bg-white dark:bg-dark-gray/10 rounded-xl shadow-lg flex items-center justify-between">
+      
+      <div class="text-dark-gray dark:text-white font-bold text-lg">
+        Durée: <span [ngClass]="{'text-red-500': callDuration > 300}">{{ formatDuration(callDuration) }}</span>
+      </div>
+
+      <div class="flex gap-4">
+        <button (click)="toggleMute()" class="h-12 w-12 rounded-full flex items-center justify-center transition-colors" [ngClass]="{'bg-red-500 text-white': isMuted, 'bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white': !isMuted}" [disabled]="callStatus !== 'active'">
+          <span class="material-symbols-outlined">{{ isMuted ? 'mic_off' : 'mic' }}</span>
+        </button>
+        <button (click)="toggleVideo()" class="h-12 w-12 rounded-full flex items-center justify-center transition-colors" [ngClass]="{'bg-red-500 text-white': !isVideoOn, 'bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white': isVideoOn}" [disabled]="callStatus !== 'active'">
+          <span class="material-symbols-outlined">{{ isVideoOn ? 'videocam' : 'videocam_off' }}</span>
+        </button>
+        <button (click)="endCall()" class="h-12 px-6 rounded-lg bg-red-600 text-white font-bold transition-colors hover:bg-red-700" [disabled]="callStatus === 'ended'">
+          <span class="material-symbols-outlined mr-2">call_end</span>
+          Terminer l'appel
+        </button>
+      </div>
+
+      <div class="text-sm text-dark-gray/60 dark:text-white/60">
+        {{ callStatus === 'active' ? 'En cours...' : (callStatus === 'connecting' ? 'Initialisation...' : 'Terminé') }}
+      </div>
+    </div>
+  </div>
+</div>

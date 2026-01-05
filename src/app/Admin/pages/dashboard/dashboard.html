@@ -1,0 +1,437 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6">
+  <!-- Header Section -->
+  <div class="flex flex-wrap justify-between gap-4 items-center">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-3">
+        <img src="/med-connect.png" alt="Med-Connect" class="h-10 w-auto">
+        <div>
+          <h1 class="text-dark-gray text-3xl font-bold leading-tight tracking-tight">
+            Tableau de Bord Admin
+          </h1>
+          <p class="text-dark-gray/60 text-base font-normal leading-normal">
+            Vue d'ensemble du système Med-Connect
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Chargement du tableau de bord..."
+    icon="dashboard"></app-loading-spinner>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!loading && stats" class="space-y-8">
+
+    <!-- Top Section: Welcome & General Stats -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Welcome Card -->
+      <div
+        class="lg:col-span-4 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="space-y-2">
+          <h2 class="text-xl font-bold text-slate-800">Bonjour {{ currentUser?.firstName || 'Admin' }}! 🎉</h2>
+          <p class="text-slate-500 text-sm">Excellente journée sur Med-Connect !</p>
+        </div>
+
+        <div class="mt-8">
+          <p class="text-3xl font-bold text-primary">{{ stats.totalDossiers || 0 }} Dossiers</p>
+          <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-wider">Gérés en ligne</p>
+        </div>
+      </div>
+
+      <!-- General Stats Grid -->
+      <div
+        class="lg:col-span-8 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Statistiques Générales</h2>
+            <p class="text-slate-500 text-sm mt-1">Activité globale de la plateforme</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <span class="material-symbols-outlined">groups</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-xs font-medium uppercase truncate text-decoration-none">Utilisateurs</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.totalUsers }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <span class="material-symbols-outlined">stethoscope</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-xs font-medium uppercase truncate">Médecins</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.totalDoctors }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+              <span class="material-symbols-outlined">personal_injury</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-xs font-medium uppercase truncate">Patients</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.totalPatients }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600">
+              <span class="material-symbols-outlined">admin_panel_settings</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-xs font-medium uppercase truncate">Admins</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.totalAdmins }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytical Detailed Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Dossiers Médicaux Card -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+      <div class="mb-6">
+        <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Dossiers Médicaux</h3>
+        <p class="text-2xl font-black text-slate-800 mt-2">Services : {{ stats?.totalDossiers || 0 }}</p>
+        <p class="text-slate-400 text-xs mt-1">Statistiques des dossiers patients créés.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+              <span class="material-symbols-outlined text-lg">folder_shared</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Actifs</p>
+              <p class="text-slate-400 text-[10px]">En cours d'utilisation</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.totalDossiers }}</p>
+            <div class="w-8 h-1 bg-amber-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+              <span class="material-symbols-outlined text-lg">verified</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Vérifiés</p>
+              <p class="text-slate-400 text-[10px]">Dossiers complets</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.verifiedDossiers || 0 }}</p>
+            <div class="w-8 h-1 bg-emerald-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+              <span class="material-symbols-outlined text-lg">history</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Archivés</p>
+              <p class="text-slate-400 text-[10px]">Anciens dossiers</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">0</p>
+            <div class="w-8 h-1 bg-rose-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-xl bg-indigo-50/30 mt-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-sm">
+              <span class="material-symbols-outlined text-lg">data_exploration</span>
+            </div>
+            <div>
+              <p class="text-indigo-900 text-sm font-bold">Total</p>
+              <p class="text-indigo-500 text-[10px] font-medium uppercase">Vue globale</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-indigo-900 text-sm font-bold">{{ stats?.totalDossiers }}</p>
+            <div class="w-8 h-1 bg-indigo-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validations Card -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+      <div class="mb-6">
+        <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Validations Médecins</h3>
+        <p class="text-2xl font-black text-slate-800 mt-2">Status : {{ stats?.totalDoctors || 0 }}</p>
+        <p class="text-slate-400 text-xs mt-1">Gestion des nouvelles candidatures.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Validés</p>
+              <p class="text-slate-400 text-[10px]">Médecins approuvés</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.activeDoctors }}</p>
+            <div class="w-8 h-1 bg-emerald-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+              <span class="material-symbols-outlined text-lg">hourglass_empty</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">En attente</p>
+              <p class="text-slate-400 text-[10px]">Action requise ({{ stats?.pendingDoctors }})</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.pendingDoctors }}</p>
+            <div class="w-8 h-1 bg-amber-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+              <span class="material-symbols-outlined text-lg">cancel</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Refusés</p>
+              <p class="text-slate-400 text-[10px]">Médecins rejetés</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.rejectedDoctors || 0 }}</p>
+            <div class="w-8 h-1 bg-rose-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-xl bg-indigo-50/30 mt-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-sm">
+              <span class="material-symbols-outlined text-lg">person_add</span>
+            </div>
+            <div>
+              <p class="text-indigo-900 text-sm font-bold">Total Inscrits</p>
+              <p class="text-indigo-500 text-[10px] font-medium uppercase">Base de données</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-indigo-900 text-sm font-bold">{{ stats?.totalDoctors }}</p>
+            <div class="w-8 h-1 bg-indigo-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flux Card -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+      <div class="mb-6">
+        <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Activités Plateforme</h3>
+        <p class="text-2xl font-black text-slate-800 mt-2">RDV : {{ stats?.totalRendezVous || 0 }}</p>
+        <p class="text-slate-400 text-xs mt-1">Interactions entre patients et médecins.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+              <span class="material-symbols-outlined text-lg">event_available</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Honorés</p>
+              <p class="text-slate-400 text-[10px]">Consultations terminées</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.honoredAppointments || 0 }}</p>
+            <div class="w-8 h-1 bg-emerald-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+              <span class="material-symbols-outlined text-lg">schedule</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">À venir</p>
+              <p class="text-slate-400 text-[10px]">Séances programmées</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.plannedAppointments || 0 }}</p>
+            <div class="w-8 h-1 bg-amber-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+              <span class="material-symbols-outlined text-lg">event_busy</span>
+            </div>
+            <div>
+              <p class="text-slate-700 text-sm font-bold">Annulés</p>
+              <p class="text-slate-400 text-[10px]">Rdvs non aboutis</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-800 text-sm font-bold">{{ stats?.cancelledAppointments || 0 }}</p>
+            <div class="w-8 h-1 bg-rose-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-xl bg-indigo-50/30 mt-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-sm">
+              <span class="material-symbols-outlined text-lg">analytics</span>
+            </div>
+            <div>
+              <p class="text-indigo-900 text-sm font-bold">Total RDV</p>
+              <p class="text-indigo-500 text-[10px] font-medium uppercase">Flux global</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-indigo-900 text-sm font-bold">{{ stats?.totalRendezVous }}</p>
+            <div class="w-8 h-1 bg-indigo-500 rounded-full mt-1 ml-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Section (Professional Charts) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Users Distribution Chart -->
+    <div class="lg:col-span-2">
+      <app-chart-card title="Répartition des Utilisateurs" subtitle="Breakdown par type de compte">
+        <div
+          class="min-h-[300px] flex items-center justify-center bg-slate-50/30 rounded-xl border border-slate-100/50 p-4">
+          <apx-chart *ngIf="userDistributionOptions" [series]="userDistributionOptions.series"
+            [chart]="userDistributionOptions.chart" [xaxis]="userDistributionOptions.xaxis"
+            [colors]="userDistributionOptions.colors" [plotOptions]="userDistributionOptions.plotOptions"
+            [dataLabels]="userDistributionOptions.dataLabels" [tooltip]="userDistributionOptions.tooltip"
+            class="w-full">
+          </apx-chart>
+        </div>
+      </app-chart-card>
+    </div>
+
+    <!-- Doctor Validations Chart -->
+    <div class="lg:col-span-1">
+      <app-chart-card title="Validations Médecins" subtitle="État actuel des vérifications">
+        <div
+          class="min-h-[300px] flex items-center justify-center bg-slate-50/30 rounded-xl border border-slate-100/50 p-4">
+          <apx-chart *ngIf="doctorValidationOptions" [series]="doctorValidationOptions.series"
+            [chart]="doctorValidationOptions.chart" [labels]="doctorValidationOptions.labels"
+            [colors]="doctorValidationOptions.colors" [legend]="doctorValidationOptions.legend"
+            [plotOptions]="doctorValidationOptions.plotOptions" [responsive]="doctorValidationOptions.responsive"
+            class="w-full">
+          </apx-chart>
+        </div>
+      </app-chart-card>
+    </div>
+  </div>
+
+  <!-- Pending Verifications Section (if any) -->
+  <div *ngIf="pendingVerifications.length > 0" class="mt-8">
+    <app-chart-card title="Demandes de Vérification Urgentes" subtitle="Médecins en attente de validation">
+
+      <div class="overflow-x-auto -mx-6 px-6">
+        <table class="w-full text-left border-collapse min-w-[500px] md:min-w-full">
+          <thead>
+            <tr class="border-b border-slate-100">
+              <th class="pb-4 pt-2 font-semibold text-slate-400 text-xs uppercase tracking-wider">Médecin</th>
+              <th class="hidden sm:table-cell pb-4 pt-2 font-semibold text-slate-400 text-xs uppercase tracking-wider">
+                Spécialité</th>
+              <th class="hidden md:table-cell pb-4 pt-2 font-semibold text-slate-400 text-xs uppercase tracking-wider">
+                Date</th>
+              <th class="pb-4 pt-2 font-semibold text-slate-400 text-xs uppercase tracking-wider">Statut</th>
+              <th class="pb-4 pt-2 font-semibold text-slate-400 text-xs uppercase tracking-wider text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let doctor of pendingVerifications" class="group hover:bg-slate-50/50 transition-colors">
+              <td class="py-4">
+                <div class="flex items-center gap-3">
+                  <div class="relative shrink-0">
+                    <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + (doctor.prenom + ' ' + doctor.nom)"
+                      [alt]="'Dr. ' + doctor.prenom + ' ' + doctor.nom"
+                      class="rounded-full w-9 h-9 md:w-10 md:h-10 object-cover border border-slate-200">
+                    <div
+                      class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-caution border-2 border-white">
+                    </div>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-800 text-sm truncate">Dr. {{ doctor.prenom }} {{ doctor.nom }}</p>
+                    <p class="hidden lg:block text-[10px] text-slate-400 truncate">{{ doctor.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="hidden sm:table-cell py-4">
+                <span
+                  class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-tight">
+                  {{ doctor.specialite }}
+                </span>
+              </td>
+              <td class="hidden md:table-cell py-4">
+                <p class="text-[13px] text-slate-600 font-medium">
+                  {{ doctor.dateSoumission | date: 'shortDate' }}
+                </p>
+              </td>
+              <td class="py-4">
+                <div class="flex items-center gap-1.5 text-caution">
+                  <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse shrink-0"></span>
+                  <span class="text-[10px] font-black uppercase tracking-wider whitespace-nowrap">Attente</span>
+                </div>
+              </td>
+              <td class="py-4 text-right">
+                <a [routerLink]="['/admin/verification-details', doctor.id]"
+                  class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-caution/10 text-caution hover:bg-caution hover:text-white transition-all text-[11px] font-bold shadow-sm shadow-caution/5 whitespace-nowrap">
+                  <span class="material-symbols-outlined text-sm hidden md:inline">visibility</span>
+                  Examiner
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-chart-card>
+  </div>
+</div>

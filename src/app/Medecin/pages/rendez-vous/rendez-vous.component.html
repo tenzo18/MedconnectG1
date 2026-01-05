@@ -1,0 +1,421 @@
+<div class="max-w-7xl mx-auto space-y-8 animate-fadeIn">
+  <!-- En-tête avec statistiques - Style Medflex -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    <div>
+      <h1 class="text-3xl font-bold text-dark-gray tracking-tight">Rendez-vous</h1>
+      <p class="text-light-gray text-lg mt-2">Gérez vos consultations et planifiez de nouveaux rendez-vous</p>
+    </div>
+    
+    <!-- Statistiques rapides -->
+    <!-- <div class="flex items-center gap-4">
+      <div class="card-medflex p-4 bg-primary/5 border-primary/20">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-lg">today</span>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-primary">{{ getRendezVousAujourdhui() }}</p>
+            <p class="text-primary/80 text-sm font-medium">Aujourd'hui</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-medflex p-4 bg-success/5 border-success/20">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-success text-lg">upcoming</span>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-success">{{ getRendezVousFuturs() }}</p>
+            <p class="text-success/80 text-sm font-medium">À venir</p>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+  <!-- Calendrier moderne - Style Medflex -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Calendrier principal -->
+    <div class="lg:col-span-1">
+      <div class="card-medflex overflow-hidden">
+        <!-- En-tête du calendrier -->
+        <div class="calendar-header bg-primary text-white p-6 flex items-center justify-between">
+          <button type="button" (click)="previousMonth()" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <h2 class="text-xl font-bold">{{ getCurrentMonthYear() }}</h2>
+          <button type="button" (click)="nextMonth()" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+        
+        <!-- Jours de la semaine -->
+        <div class="calendar-weekdays bg-slate-50 grid grid-cols-7 border-b border-slate-200">
+          <div *ngFor="let day of weekDaysShort" class="p-3 text-center text-xs font-bold text-light-gray uppercase">
+            {{ day }}
+          </div>
+        </div>
+        
+        <!-- Grille du calendrier -->
+        <div class="calendar-content grid grid-cols-7">
+          <div *ngFor="let day of calendarDays" 
+               (click)="selectDate(day)"
+               [class]="getCalendarDayClass(day)"
+               class="calendar-day p-2 sm:p-3 h-10 sm:h-12 flex flex-col items-center justify-center text-sm cursor-pointer transition-all hover:bg-primary/10 relative group">
+            <span [class]="day.isToday ? 'text-white font-bold' : ''">{{ day.day }}</span>
+            
+            <!-- Marqueurs de rendez-vous -->
+            <div *ngIf="getRendezVousCountForDay(day.date) > 0" 
+                 class="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex items-center justify-center">
+              <!-- Marqueur simple pour 1 RDV -->
+              <div *ngIf="getRendezVousCountForDay(day.date) === 1"
+                   class="w-1.5 h-1.5 bg-primary rounded-full shadow-sm"></div>
+              
+              <!-- Marqueur double pour 2 RDV -->
+              <div *ngIf="getRendezVousCountForDay(day.date) === 2"
+                   class="flex gap-0.5">
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+              </div>
+              
+              <!-- Marqueur triple pour 3+ RDV -->
+              <div *ngIf="getRendezVousCountForDay(day.date) >= 3"
+                   class="flex gap-0.5">
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+                <div class="w-1 h-1 bg-primary rounded-full"></div>
+              </div>
+            </div>
+            
+            <!-- Tooltip au hover -->
+            <div *ngIf="getRendezVousCountForDay(day.date) > 0"
+                 class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-dark-gray text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              {{ getRendezVousCountForDay(day.date) }} rendez-vous
+              <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-dark-gray"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des rendez-vous du jour sélectionné -->
+    <div class="lg:col-span-2">
+      <div class="card-medflex">
+        <div class="p-4 sm:p-6 border-b border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h3 class="text-lg sm:text-xl font-bold text-dark-gray">
+              Rendez-vous du {{ formatSelectedDate() }}
+            </h3>
+            <button type="button"
+              (click)="openCreateModal()"
+              class="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all w-full sm:w-auto">
+              <span class="material-symbols-outlined text-sm">add</span>
+              <span class="font-medium">Nouveau RDV</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="p-4 sm:p-6">
+          <!-- Filtres -->
+          <div class="flex flex-wrap items-center gap-2 mb-4 sm:mb-6">
+            <button type="button"
+              (click)="filterType = 'tous'; loadRendezVous()"
+              [class]="filterType === 'tous' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base">
+              Tous ({{ rendezVousList.length }})
+            </button>
+            <button type="button"
+              (click)="filterType = 'aujourdhui'; loadRendezVous()"
+              [class]="filterType === 'aujourdhui' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base">
+              Aujourd'hui
+            </button>
+            <button type="button"
+              (click)="filterType = 'futurs'; loadRendezVous()"
+              [class]="filterType === 'futurs' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base">
+              À venir
+            </button>
+          </div>
+
+          <!-- Barre de recherche -->
+          <div class="relative mb-4 sm:mb-6">
+            <input 
+              type="text" 
+              placeholder="Rechercher un patient..."
+              [(ngModel)]="searchTerm"
+              (input)="filterRendezVous()"
+              class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-sm sm:text-base"
+            />
+            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">search</span>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="loading" class="text-center py-6 sm:py-8">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined animate-spin text-lg sm:text-xl text-primary">progress_activity</span>
+              </div>
+              <p class="text-light-gray font-medium text-sm sm:text-base">Chargement des rendez-vous...</p>
+            </div>
+          </div>
+
+          <!-- Error -->
+          <div *ngIf="error" class="bg-danger/10 border border-danger/20 text-danger px-3 sm:px-4 py-3 rounded-lg">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined">error</span>
+              <span class="font-medium text-sm sm:text-base">{{ error }}</span>
+            </div>
+          </div>
+
+          <!-- Aucun rendez-vous -->
+          <div *ngIf="!loading && filteredRendezVous.length === 0" class="text-center py-6 sm:py-8">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl sm:text-2xl text-slate-400">event_busy</span>
+              </div>
+              <div>
+                <h4 class="text-base sm:text-lg font-bold text-dark-gray mb-1">
+                  {{ searchTerm ? 'Aucun rendez-vous trouvé' : 'Aucun rendez-vous' }}
+                </h4>
+                <p class="text-light-gray text-sm sm:text-base">
+                  {{ searchTerm ? 
+                    'Essayez de modifier vos critères de recherche.' : 
+                    'Aucun rendez-vous planifié pour cette date.' 
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Liste des rendez-vous -->
+          <div *ngIf="!loading && filteredRendezVous.length > 0" class="space-y-3 sm:space-y-4">
+            <div *ngFor="let rdv of filteredRendezVous; trackBy: trackByRendezVous" 
+                 class="bg-slate-50 rounded-xl p-3 sm:p-4 hover:bg-slate-100 transition-colors group">
+              
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <!-- Informations patient et RDV -->
+                <div class="flex items-start gap-3 flex-1">
+                  <div class="relative flex-shrink-0">
+                    <img
+                      [src]="rdv.patient?.profilePicture || 'icon.png'"
+                      [alt]="rdv.patient?.firstName"
+                      class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border-2 border-white shadow-sm"
+                    />
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full flex items-center justify-center"
+                         [class]="getStatusBadgeClass(rdv.statut)">
+                      <span class="material-symbols-outlined text-white text-xs">{{ getStatusIcon(rdv.statut) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                      <h4 class="font-bold text-dark-gray group-hover:text-primary transition-colors text-sm sm:text-base truncate">
+                        {{ rdv.patient?.firstName || 'Prénom' }} {{ rdv.patient?.lastName || 'Nom' }}
+                      </h4>
+                      <span class="px-2 py-1 text-xs font-medium rounded-full self-start"
+                            [class]="getStatutClass(rdv.statut)">
+                        {{ getStatutLabel(rdv.statut) }}
+                      </span>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-light-gray">
+                      <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        <span>{{ formatTime(rdv.dateRendezVous) }}</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">timer</span>
+                        <span>{{ rdv.duree }} min</span>
+                      </div>
+                    </div>
+                    
+                    <p class="text-xs sm:text-sm text-slate-600 mt-1 line-clamp-2">{{ rdv.motif }}</p>
+                  </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-2 flex-shrink-0">
+                  <button type="button"
+                    *ngIf="rdv.statut === 'PLANIFIE'"
+                    (click)="confirmerRdv(rdv.id)"
+                    class="flex items-center gap-1 px-2 sm:px-3 py-1 bg-success text-white text-xs sm:text-sm rounded-lg hover:bg-success/90 transition-all">
+                    <span class="material-symbols-outlined text-sm">check</span>
+                    <span class="hidden sm:inline">Confirmer</span>
+                  </button>
+                  
+                  <button type="button"
+                    *ngIf="rdv.statut === 'CONFIRME'"
+                    (click)="terminerRdv(rdv.id)"
+                    class="flex items-center gap-1 px-2 sm:px-3 py-1 bg-primary text-white text-xs sm:text-sm rounded-lg hover:bg-primary-dark transition-all">
+                    <span class="material-symbols-outlined text-sm">done</span>
+                    <span class="hidden sm:inline">Terminer</span>
+                  </button>
+                  
+                  <button type="button"
+                    (click)="annulerRdv(rdv.id)"
+                    class="p-1 sm:p-2 text-slate-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+                    title="Annuler">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de création - Style Medflex -->
+<div
+  *ngIf="showCreateModal"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+  (click)="closeCreateModal()">
+  
+  <div
+    class="card-medflex w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+    (click)="$event.stopPropagation()">
+    
+    <!-- En-tête du modal -->
+    <div class="bg-primary p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">event_note</span>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold">Nouveau Rendez-vous</h2>
+            <p class="text-white/80">Planifiez une consultation avec un patient</p>
+          </div>
+        </div>
+        <button type="button"
+          (click)="closeCreateModal()"
+          class="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenu du modal -->
+    <div class="p-6">
+      <form (ngSubmit)="creerRendezVous()" class="space-y-6">
+        
+        <!-- Sélection du patient -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-dark-gray">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg">person</span>
+              Patient *
+            </span>
+          </label>
+          <div class="relative">
+            <select
+              [(ngModel)]="newRdv.patientId"
+              name="patientId"
+              class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-dark-gray"
+              required>
+              <option value="">Sélectionner un patient</option>
+              <option *ngFor="let patient of patients" [value]="patient.id">
+                {{ patient.firstName }} {{ patient.lastName }} - {{ patient.email }}
+              </option>
+            </select>
+            <span class="material-symbols-outlined absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">group</span>
+          </div>
+        </div>
+
+        <!-- Date et heure -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-dark-gray">
+              <span class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">calendar_today</span>
+                Date *
+              </span>
+            </label>
+            <input
+              type="date"
+              [(ngModel)]="newRdv.date"
+              name="date"
+              class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-dark-gray"
+              required
+            />
+          </div>
+          
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-dark-gray">
+              <span class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">schedule</span>
+                Heure *
+              </span>
+            </label>
+            <input
+              type="time"
+              [(ngModel)]="newRdv.time"
+              name="time"
+              class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-dark-gray"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Durée -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-dark-gray">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg">timer</span>
+              Durée (minutes) *
+            </span>
+          </label>
+          <div class="grid grid-cols-4 gap-2">
+            <button
+              type="button"
+              *ngFor="let duration of durations"
+              (click)="newRdv.duree = duration"
+              [class]="newRdv.duree === duration ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="py-3 px-4 rounded-lg font-medium transition-all">
+              {{ duration }}min
+            </button>
+          </div>
+        </div>
+
+        <!-- Motif -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-dark-gray">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg">description</span>
+              Motif de consultation *
+            </span>
+          </label>
+          <textarea
+            [(ngModel)]="newRdv.motif"
+            name="motif"
+            rows="4"
+            placeholder="Décrivez le motif de la consultation..."
+            class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-dark-gray resize-none"
+            required></textarea>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex items-center justify-end gap-4 pt-6 border-t border-slate-200">
+          <button
+            type="button"
+            (click)="closeCreateModal()"
+            class="px-6 py-3 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 font-medium transition-all">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="creating || !isFormValid()"
+            class="flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-slate-400 disabled:cursor-not-allowed font-medium transition-all">
+            <span class="material-symbols-outlined" *ngIf="creating">progress_activity</span>
+            <span class="material-symbols-outlined" *ngIf="!creating">event_available</span>
+            <span>{{ creating ? 'Création...' : 'Créer le rendez-vous' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

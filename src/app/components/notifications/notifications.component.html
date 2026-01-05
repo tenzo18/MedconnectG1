@@ -1,0 +1,113 @@
+<div class="relative">
+  <!-- Bouton de notifications -->
+  <button
+    (click)="toggleDropdown()"
+    class="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+  >
+    <span class="material-symbols-outlined">notifications</span>
+    
+    <!-- Badge de compteur -->
+    <span
+      *ngIf="unreadCount > 0"
+      class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+    >
+      {{ unreadCount > 99 ? '99+' : unreadCount }}
+    </span>
+  </button>
+
+  <!-- Dropdown des notifications -->
+  <div
+    *ngIf="isOpen"
+    class="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Notifications
+      </h3>
+      <button
+        *ngIf="unreadCount > 0"
+        (click)="marquerToutesCommeLues()"
+        class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
+      >
+        Tout marquer comme lu
+      </button>
+    </div>
+
+    <!-- Liste des notifications -->
+    <div class="max-h-96 overflow-y-auto">
+      <div *ngIf="loading" class="p-4 text-center text-gray-500">
+        <span class="material-symbols-outlined animate-spin">progress_activity</span>
+        <p class="mt-2">Chargement...</p>
+      </div>
+
+      <div *ngIf="!loading && notifications.length === 0" class="p-8 text-center text-gray-500">
+        <span class="material-symbols-outlined text-4xl">notifications_off</span>
+        <p class="mt-2">Aucune notification</p>
+      </div>
+
+      <div *ngIf="!loading && notifications.length > 0">
+        <div
+          *ngFor="let notification of notifications"
+          class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+          [class.bg-blue-50]="!notification.lue"
+          [class.dark:bg-blue-900/20]="!notification.lue"
+          (click)="marquerCommeLue(notification.id)"
+        >
+          <div class="flex items-start gap-3">
+            <!-- Icône selon le type -->
+            <div class="flex-shrink-0">
+              <span
+                class="material-symbols-outlined text-2xl"
+                [class.text-blue-600]="notification.type === 'INFO'"
+                [class.text-green-600]="notification.type === 'SUCCESS'"
+                [class.text-yellow-600]="notification.type === 'WARNING'"
+                [class.text-red-600]="notification.type === 'ERROR'"
+              >
+                {{ getIconForType(notification.type) }}
+              </span>
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                {{ notification.titre }}
+              </p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {{ notification.message }}
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                {{ formatDate(notification.createdAt) }}
+              </p>
+            </div>
+
+            <!-- Bouton supprimer -->
+            <button
+              (click)="supprimerNotification(notification.id, $event)"
+              class="flex-shrink-0 text-gray-400 hover:text-red-600 transition-colors"
+            >
+              <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-3 border-t border-gray-200 dark:border-gray-700 text-center">
+      <button
+        (click)="voirToutes()"
+        class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium"
+      >
+        Voir toutes les notifications
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay pour fermer le dropdown -->
+<div
+  *ngIf="isOpen"
+  (click)="closeDropdown()"
+  class="fixed inset-0 z-40"
+></div>

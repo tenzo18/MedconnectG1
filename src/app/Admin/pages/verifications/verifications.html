@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-background-light">
+  <!-- Header -->
+  <div class=" border-gray-200 px-6 py-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-dark-gray">Vérifications des Médecins</h1>
+          <p class="text-dark-gray/60 mt-1">Examiner et valider les demandes d'inscription des médecins</p>
+        </div>
+
+        <!-- Statistiques rapides
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-caution">{{ pendingList.length }}</div>
+            <div class="text-xs text-dark-gray/60">En attente</div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="max-w-7xl mx-auto p-6">
+
+    <!-- États de chargement et d'erreur -->
+    <app-loading-spinner *ngIf="loading" message="Chargement des demandes..."
+      icon="assignment_ind"></app-loading-spinner>
+
+    <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+      {{ error }}
+    </div>
+
+    <!-- Liste des médecins en attente -->
+    <div *ngIf="!loading && !error" class="space-y-4">
+
+      <!-- Message si aucune demande -->
+      <div *ngIf="pendingList.length === 0" class="text-center py-20">
+        <div class=" rounded-xl border border-gray-200 p-8">
+          <span class="material-symbols-outlined text-6xl text-dark-gray/30 mb-4">verified_user</span>
+          <h3 class="text-xl font-semibold text-dark-gray mb-2">Aucune demande en attente</h3>
+          <p class="text-dark-gray/60">Toutes les demandes de vérification ont été traitées.</p>
+        </div>
+      </div>
+
+      <!-- Cartes des médecins -->
+      <!-- Data Table des médecins -->
+      <div *ngIf="pendingList.length > 0"
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[500px] md:min-w-full">
+            <thead>
+              <tr
+                class="bg-slate-50/50 border-b border-slate-200 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-500">
+                <th class="px-4 py-4 md:px-6">Médecin</th>
+                <th class="hidden sm:table-cell px-6 py-4">Spécialité</th>
+                <th class="hidden lg:table-cell px-6 py-4">Informations</th>
+                <th class="hidden md:table-cell px-6 py-4">Soumission</th>
+                <th class="px-4 py-4 md:px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let doctor of pendingList" class="hover:bg-slate-50/30 transition-colors group">
+                <td class="px-4 py-5 md:px-6">
+                  <div class="flex items-center gap-3 md:gap-4">
+                    <div class="relative shrink-0">
+                      <img
+                        [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + (doctor.prenom + ' ' + doctor.nom)"
+                        [alt]="doctor.prenom + ' ' + doctor.nom"
+                        class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-100">
+                      <div
+                        class="absolute -bottom-1 -right-1 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-white flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-[9px] md:text-[10px] text-caution">schedule</span>
+                      </div>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors truncate">
+                        Dr. {{
+                        doctor.prenom }} {{ doctor.nom }}</p>
+                      <p class="text-[11px] md:text-xs text-slate-400 truncate">{{ doctor.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="hidden sm:table-cell px-6 py-5">
+                  <div class="flex flex-col gap-1">
+                    <span
+                      class="inline-flex px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase w-fit">
+                      {{ doctor.specialite }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 italic">Médecin Généraliste</span>
+                  </div>
+                </td>
+                <td class="hidden lg:table-cell px-6 py-5">
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                      <span class="material-symbols-outlined text-sm text-slate-400">badge</span>
+                      {{ doctor.numeroOrdre }}
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-400" *ngIf="doctor.telephone">
+                      <span class="material-symbols-outlined text-[14px]">call</span>
+                      {{ doctor.telephone }}
+                    </div>
+                  </div>
+                </td>
+                <td class="hidden md:table-cell px-6 py-5 text-sm text-slate-600">
+                  <div class="font-bold tabular-nums text-slate-700">
+                    {{ doctor.dateSoumission | date: 'dd/MM/yyyy' }}
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-0.5 uppercase font-medium">
+                    {{ doctor.dateSoumission | date: 'HH:mm' }}
+                  </div>
+                </td>
+                <td class="px-4 py-5 md:px-6">
+                  <div class="flex items-center justify-end gap-1.5 md:gap-2 text-decoration-none">
+                    <button (click)="quickApprove(doctor)"
+                      class="hidden md:flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all duration-300 shadow-sm shadow-emerald-700/5 group/btn"
+                      title="Approuver">
+                      <span class="material-symbols-outlined text-base">check_circle</span>
+                    </button>
+                    <button (click)="quickReject(doctor)"
+                      class="hidden md:flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm shadow-rose-700/5 group/btn"
+                      title="Refuser">
+                      <span class="material-symbols-outlined text-base">cancel</span>
+                    </button>
+                    <div class="hidden md:block w-px h-6 bg-slate-100 mx-0.5 md:mx-1"></div>
+                    <a [routerLink]="['../verification-details', doctor.id]"
+                      class="flex items-center justify-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-primary text-white hover:bg-primary-hover hover:scale-[1.02] transition-all text-[11px] md:text-xs font-bold shadow-md shadow-primary/20 whitespace-nowrap">
+                      Détails
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation pour approbation rapide -->
+<div *ngIf="showApproveModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div class="text-center">
+      <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-success text-2xl">check_circle</span>
+      </div>
+      <h3 class="text-lg font-semibold text-dark-gray mb-2">Approuver le médecin</h3>
+      <p class="text-dark-gray/60 mb-6">
+        Êtes-vous sûr de vouloir approuver Dr. {{ selectedDoctor?.prenom }} {{ selectedDoctor?.nom }} ?
+      </p>
+      <div class="flex gap-3">
+        <button (click)="cancelAction()"
+          class="flex-1 px-4 py-2 border border-gray-200 text-dark-gray hover:bg-gray-50 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button (click)="confirmApprove()"
+          class="flex-1 px-4 py-2 bg-success text-white hover:bg-success/90 rounded-lg transition-colors">
+          Approuver
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation pour refus rapide -->
+<div *ngIf="showRejectModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div class="text-center">
+      <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-red-600 text-2xl">cancel</span>
+      </div>
+      <h3 class="text-lg font-semibold text-dark-gray mb-2">Refuser le médecin</h3>
+      <p class="text-dark-gray/60 mb-4">
+        Êtes-vous sûr de vouloir refuser Dr. {{ selectedDoctor?.prenom }} {{ selectedDoctor?.nom }} ?
+      </p>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-dark-gray mb-2">Raison du refus (optionnel)</label>
+        <textarea [(ngModel)]="rejectionReason"
+          class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          rows="3" placeholder="Expliquez la raison du refus..."></textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="cancelAction()"
+          class="flex-1 px-4 py-2 border border-gray-200 text-dark-gray hover:bg-gray-50 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button (click)="confirmReject()"
+          class="flex-1 px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors">
+          Refuser
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

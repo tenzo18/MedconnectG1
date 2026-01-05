@@ -1,0 +1,189 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6">
+  <!-- Navigation Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <button (click)="goBack()"
+      class="group flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-primary transition-all text-sm font-bold w-full sm:w-auto">
+      <span
+        class="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      Retour à la liste
+    </button>
+
+    <div class="flex items-center gap-2 px-3 py-1.5 ">
+      <span class="w-2 h-2 rounded-full"
+        [ngClass]="{'bg-emerald-500': user?.status === 'Actif', 'bg-caution': user?.status === 'En attente', 'bg-rose-500': user?.status === 'Inactif'}"></span>
+      <span class="text-[10px] font-black uppercase tracking-widest"
+        [ngClass]="{'text-emerald-600': user?.status === 'Actif', 'text-caution': user?.status === 'En attente', 'text-rose-600': user?.status === 'Inactif'}">
+        {{ user?.status || 'Inconnu' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Chargement du profil..." icon="account_circle"></app-loading-spinner>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading"
+    class="max-w-md mx-auto bg-white rounded-3xl p-10 text-center border border-rose-100 shadow-xl shadow-rose-50/50">
+    <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-6">
+      <span class="material-symbols-outlined text-4xl">person_off</span>
+    </div>
+    <h2 class="text-xl font-black text-slate-800 mb-2">Profil Introuvable</h2>
+    <p class="text-slate-500 text-sm mb-8">{{ error }}</p>
+    <button (click)="goBack()"
+      class="w-full py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
+      Retourner à la liste
+    </button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && !error && user" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- Sidebar / Summary Card -->
+    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+      <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden group">
+        <!-- Background Accent -->
+        <div class="absolute top-0 left-0 w-full h-32 bg-slate-50 border-b border-slate-100"></div>
+
+        <div class="relative flex flex-col items-center">
+          <div class="relative mb-6">
+            <div class="w-28 h-28 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
+              <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + user.name" [alt]="user.name"
+                class="w-full h-full object-cover">
+            </div>
+            <div
+              class="absolute -bottom-2 -right-2 w-8 h-8 rounded-2xl bg-white p-1 shadow-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-lg"
+                *ngIf="user.role === 'Médecin'">stethoscope</span>
+              <span class="material-symbols-outlined text-indigo-500 text-lg"
+                *ngIf="user.role === 'Patient'">person</span>
+              <span class="material-symbols-outlined text-amber-500 text-lg"
+                *ngIf="user.role === 'Admin'">admin_panel_settings</span>
+            </div>
+          </div>
+
+          <h1 class="text-2xl font-black text-slate-800 text-center leading-tight">{{ user.name }}</h1>
+          <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">{{ user.role }}</p>
+
+          <div class="w-full h-px bg-slate-50 my-8"></div>
+
+          <div class="w-full space-y-5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Système</span>
+              <code
+                class="text-[11px] bg-slate-50 px-2 py-0.5 rounded text-slate-600 font-mono">{{ user.id.substring(0, 8) }}...</code>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</span>
+              <span class="text-xs font-bold" [ngClass]="user.isOnline ? 'text-emerald-500' : 'text-slate-400'">
+                {{ user.isOnline ? '● En ligne' : '○ Hors ligne' }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between" *ngIf="user.dateCreation">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Membre depuis</span>
+              <span class="text-xs font-bold text-slate-600">{{ user.dateCreation | date:'MMM yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="w-full mt-10 space-y-3">
+            <button (click)="toggleUserStatus()"
+              class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+              [ngClass]="user.status === 'Actif' ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'">
+              <span class="material-symbols-outlined text-base">
+                {{ user.status === 'Actif' ? 'block' : 'verified_user' }}
+              </span>
+              {{ user.status === 'Actif' ? 'Désactiver le compte' : 'Réactiver le compte' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Details Column -->
+    <div class="lg:col-span-8 space-y-8">
+      <!-- Personal Information -->
+      <div class="bg-white rounded-[2.5rem] p-8 lg:p-10 border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-4 mb-10">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-black text-slate-800">Informations Personnelles</h2>
+            <p class="text-sm text-slate-400 mt-1 font-medium">Détails d'identité et de contact</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <div class="space-y-1">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Prénom</p>
+            <p class="text-base font-bold text-slate-700">{{ user.firstName || 'Non renseigné' }}</p>
+          </div>
+          <div class="space-y-1">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Nom</p>
+            <p class="text-base font-bold text-slate-700">{{ user.lastName || 'Non renseigné' }}</p>
+          </div>
+          <div class="space-y-1">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Email Principal</p>
+            <div class="flex items-center gap-2">
+              <p class="text-base font-bold text-slate-700">{{ user.email }}</p>
+              <span class="material-symbols-outlined text-emerald-400 text-base">verified</span>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Téléphone</p>
+            <p class="text-base font-bold text-slate-700">{{ user.phone || 'Aucun numéro' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Information (Only if Doctor) -->
+      <div *ngIf="user.role === 'Médecin'"
+        class="bg-white rounded-[2.5rem] p-8 lg:p-10 border border-slate-100 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+        <div class="flex items-center gap-4 mb-10">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500">
+            <span class="material-symbols-outlined">medical_information</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-black text-slate-800">Profil Professionnel</h2>
+            <p class="text-sm text-slate-400 mt-1 font-medium">Identification et expertise médicale</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <div class="space-y-2">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Spécialité</p>
+            <div
+              class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 font-black text-xs uppercase tracking-wider">
+              {{ user.specialite || 'Généraliste' }}
+            </div>
+          </div>
+          <div class="space-y-1">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">N° Licence / RPPS</p>
+            <p class="text-base font-bold text-slate-700 font-mono">{{ user.licenseNumber || 'En attente' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Security / Metadata -->
+      <div
+        class="bg-slate-50 rounded-[2.5rem] p-8 lg:p-10 border border-slate-100 flex flex-wrap gap-8 items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-slate-400 shadow-sm">
+            <span class="material-symbols-outlined">history</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dernière activité</p>
+            <p class="text-sm font-bold text-slate-700 mt-1">{{ formatDate(user.lastConnection) }}</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button (click)="copyToClipboard(user.id)"
+            class="px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">content_copy</span>
+            Copier l'ID unique
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

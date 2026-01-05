@@ -1,0 +1,187 @@
+<app-loading-spinner *ngIf="loading" message="Chargement du dossier médical..."
+  icon="stethoscope"></app-loading-spinner>
+
+<div *ngIf="!loading && doctor"
+  class="max-w-6xl mx-auto space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 md:px-0">
+
+  <!-- Navigation Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <button (click)="goBack()"
+      class="group flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-primary hover:border-primary/30 hover:transition-all text-sm font-bold w-full sm:w-auto">
+      <span
+        class="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      Retour
+    </button>
+    <div class="flex items-center gap-2 px-3 py-1.5">
+      <span class="w-2 h-2 rounded-full bg-caution animate-pulse"></span>
+      <span class="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-caution">Examen en cours</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+
+    <!-- Left Column: Profile Card -->
+    <div class="lg:col-span-4 space-y-6">
+      <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="h-24 md:h-32 bg-gradient-to-br from-primary to-indigo-600"></div>
+        <div class="px-6 pb-8 -mt-12 md:-mt-16 text-center">
+          <div class="relative inline-block">
+            <div
+              class="size-24 md:size-32 rounded-3xl border-4 border-white overflow-hidden bg-slate-50 shadow-xl mx-auto ring-1 ring-slate-100">
+              <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + (doctor.prenom + ' ' + doctor.nom)"
+                [alt]="'Dr. ' + doctor.prenom + ' ' + doctor.nom" class="w-full h-full object-cover" />
+            </div>
+            <div
+              class="absolute bottom-1.5 right-1.5 w-6 h-6 md:w-8 md:h-8 bg-emerald-500 border-2 md:border-4 border-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+              <span class="material-symbols-outlined text-white text-[10px] md:text-[14px]">verified</span>
+            </div>
+          </div>
+
+          <h2 class="mt-4 text-xl md:text-2xl font-black text-slate-800 leading-tight">Dr. {{ doctor.prenom }}<br>{{
+            doctor.nom }}</h2>
+          <p
+            class="mt-2 text-primary font-bold text-[11px] md:text-sm uppercase tracking-wide px-3 py-1 bg-primary/5 rounded-full inline-block">
+            {{ doctor.specialite }}
+          </p>
+
+          <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-100 grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <p class="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest">Statut</p>
+              <p class="mt-1 text-[11px] md:text-xs font-bold text-caution">En attente</p>
+            </div>
+            <div class="text-center">
+              <p class="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest">Soumission</p>
+              <p class="mt-1 text-[11px] md:text-xs font-bold text-slate-700">{{ doctor.dateSoumission | date:
+                'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Container -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-1">Décision
+          Administrative</h3>
+        <div class="space-y-3">
+          <button (click)="onApprove(doctor.id)" [disabled]="processing"
+            class="w-full flex items-center justify-center gap-3 bg-emerald-500 text-white rounded-2xl py-3.5 md:py-4 font-black text-xs md:text-sm hover:bg-emerald-600 hover:shadow-lg transition-all disabled:opacity-50">
+            <span class="material-symbols-outlined text-base md:text-lg">check_circle</span>
+            {{ processing ? 'Traitement...' : 'APPROUVER MÉDECIN' }}
+          </button>
+
+          <button (click)="onRefuse(doctor.id)" [disabled]="processing"
+            class="w-full flex items-center justify-center gap-3 bg-rose-50 text-rose-600 border-2 border-rose-100 rounded-2xl py-3.5 md:py-4 font-black text-xs md:text-sm hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-lg transition-all disabled:opacity-50">
+            <span class="material-symbols-outlined text-base md:text-lg">cancel</span>
+            REFUSER DEMANDE
+          </button>
+        </div>
+        <p class="mt-4 text-[9px] md:text-[10px] text-slate-400 text-center italic leading-relaxed">Cette action est
+          définitive et notifiera le médecin par email.</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Details Content -->
+    <div class="lg:col-span-8 space-y-6 md:space-y-8">
+
+      <!-- Section: Informations Personnelles -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm">
+        <div class="flex items-center gap-4 mb-6 md:mb-8">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-xl md:text-2xl">person</span>
+          </div>
+          <h3 class="text-base md:text-lg font-black text-slate-800 tracking-tight">Informations Personnelles</h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+          <div class="space-y-1">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Prénom &
+              Nom</label>
+            <p class="text-sm md:text-base font-bold text-slate-700">{{ doctor.prenom }} {{ doctor.nom }}</p>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Email
+              professionnel</label>
+            <p class="text-sm md:text-base font-bold text-slate-700 underline decoration-primary/30 truncate"
+              [title]="doctor.email">{{ doctor.email }}</p>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact
+              Téléphonique</label>
+            <p class="text-sm md:text-base font-bold text-slate-700">{{ doctor.telephone || 'Non renseigné' }}</p>
+          </div>
+          <div class="space-y-1 sm:col-span-2">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Adresse
+              complète</label>
+            <p class="text-sm md:text-base font-bold text-slate-700 italic leading-relaxed">{{ doctor.adresse || 'Aucune
+              adresse spécifiée' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Informations Professionnelles -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm relative overflow-hidden group">
+        <div
+          class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-indigo-50/30 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 group-hover:scale-110 transition-transform">
+        </div>
+
+        <div class="flex items-center gap-4 mb-6 md:mb-8">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl md:text-2xl">work</span>
+          </div>
+          <h3 class="text-base md:text-lg font-black text-slate-800 tracking-tight">Expérience & Titres</h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 relative">
+          <div class="space-y-1">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Établissement
+              Principal</label>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="material-symbols-outlined text-primary text-base">apartment</span>
+              <p class="text-sm md:text-base font-bold text-slate-700">{{ doctor.hopital || 'Cabinet Privé' }}</p>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Domaine de
+              Spécialité</label>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="material-symbols-outlined text-indigo-600 text-base">stethoscope</span>
+              <p class="text-sm md:text-base font-bold text-slate-700">{{ doctor.specialite }}</p>
+            </div>
+          </div>
+
+          <div class="sm:col-span-2 pt-4 md:pt-6">
+            <div class="bg-primary/5 rounded-2xl p-5 md:p-6 border-l-4 border-primary">
+              <div class="flex justify-between items-start mb-4">
+                <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest">Certificat
+                  Professionnel (N° d'Ordre)</label>
+                <span class="material-symbols-outlined text-primary animate-pulse text-xl">new_releases</span>
+              </div>
+              <p class="text-slate-900 text-2xl md:text-4xl font-black tracking-tighter tabular-nums truncate">
+                {{ doctor.numeroOrdre }}
+              </p>
+              <p class="text-[9px] md:text-[10px] text-slate-400 mt-4 leading-relaxed italic">Veuillez vérifier ce
+                numéro
+                auprès de l'Ordre National des Médecins avant toute validation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #notfound>
+  <div class="max-w-md mx-auto py-20 text-center animate-in zoom-in duration-500">
+    <div
+      class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-slate-200">
+      <span class="material-symbols-outlined text-slate-400 text-5xl">search_off</span>
+    </div>
+    <h2 class="text-xl font-black text-slate-800 mb-2">Demande Introuvable</h2>
+    <p class="text-slate-500 text-sm mb-10 leading-relaxed px-10">Cette demande a peut-être déjà été traitée ou elle
+      n'existe plus dans le système.</p>
+    <button (click)="goBack()"
+      class="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-hover shadow-xl shadow-primary/20 transition-all">
+      RETOUR À L'ACCUEIL
+    </button>
+  </div>
+</ng-template>

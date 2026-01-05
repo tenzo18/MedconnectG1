@@ -1,0 +1,190 @@
+/* Tailwind CSS v4 avec configuration Medflex */
+@use "tailwindcss";
+
+/* Import de la police Inter - Commenté pour éviter les erreurs de build */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); */
+
+/* Import des Material Symbols - Commenté pour éviter les erreurs de build */
+/* @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined'); */
+
+@theme {
+  /* Couleurs Medflex - Bleu plus doux et professionnel */
+  --color-primary: #1c74bc;
+  --color-primary-light: #3089d3;
+  --color-primary-dark: #155a92;
+  --color-secondary: #f8fafc;
+  --color-dark-gray: #1e293b;
+  --color-light-gray: #64748b;
+  --color-caution: #f59e0b;
+  --color-success: #059669;
+  --color-danger: #dc2626;
+  --color-background-light: #f1f5f9;
+  --color-card-bg: #ffffff;
+  --color-sidebar-bg: #ffffff;
+
+  /* Police */
+  --font-family-display: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Rayons */
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Ombres */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06);
+}
+
+/* Variables CSS pour Tailwind */
+:root {
+  --primary: #1c74bc;
+  --primary-light: #3089d3;
+  --primary-dark: #155a92;
+  --secondary: #f8fafc;
+  --dark-gray: #1e293b;
+  --light-gray: #64748b;
+  --caution: #f59e0b;
+  --success: #059669;
+  --danger: #dc2626;
+  --background-light: #f1f5f9;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+}
+
+/* Configuration globale */
+* {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Style global Medflex */
+html,
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #F1F5F9;
+  color: #1E293B;
+}
+
+/* Classes utilitaires Medflex */
+.bg-background-light {
+  background-color: #F1F5F9 !important;
+}
+
+.bg-secondary {
+  background-color: #F8FAFC !important;
+}
+
+.bg-primary {
+  background-color: #1c74bc !important;
+}
+
+.bg-success {
+  background-color: #059669 !important;
+}
+
+.bg-caution {
+  background-color: #f59e0b !important;
+}
+
+.bg-danger {
+  background-color: #dc2626 !important;
+}
+
+.text-primary {
+  color: #1c74bc !important;
+}
+
+.text-success {
+  color: #059669 !important;
+}
+
+.text-caution {
+  color: #f59e0b !important;
+}
+
+.text-danger {
+  color: #dc2626 !important;
+}
+
+.text-dark-gray {
+  color: #1E293B !important;
+}
+
+.text-light-gray {
+  color: #64748B !important;
+}
+
+.text-dark-gray\/60 {
+  color: rgba(30, 41, 59, 0.6) !important;
+}
+
+.text-dark-gray\/80 {
+  color: rgba(30, 41, 59, 0.8) !important;
+}
+
+.bg-primary\/10 {
+  background-color: rgba(28, 116, 188, 0.1) !important;
+}
+
+.bg-primary\/90 {
+  background-color: rgba(28, 116, 188, 0.9) !important;
+}
+
+.bg-caution\/10 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.bg-caution\/20 {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.bg-success\/10 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.text-caution\/80 {
+  color: rgba(245, 158, 11, 0.8) !important;
+}
+
+.text-caution\/90 {
+  color: rgba(245, 158, 11, 0.9) !important;
+}
+
+.border-caution\/30 {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.border-primary\/20 {
+  border-color: rgba(28, 116, 188, 0.2) !important;
+}
+
+.bg-white {
+  background-color: #FFFFFF !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06) !important;
+}
+
+.card-medflex {
+  background-color: #FFFFFF !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+/* Styles pour les inputs */
+input,
+select {
+  color: #1E293B !important;
+}
+
+input::placeholder {
+  color: rgba(30, 41, 59, 0.6) !important;
+}

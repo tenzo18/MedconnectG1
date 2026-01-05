@@ -1,0 +1,230 @@
+<div *ngIf="patient; else notfound" class="max-w-7xl mx-auto space-y-10 animate-fadeIn">
+  <!-- Patient Profile Header -->
+  <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden p-6 md:p-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex items-center gap-6">
+        <div class="relative">
+          <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + patient.prenom + ' ' + patient.nom"
+            class="w-24 h-24 md:w-28 md:h-28 rounded-xl object-cover border border-slate-200 shadow-sm">
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">{{ patient.prenom }} {{ patient.nom }}</h2>
+          <div class="flex items-center gap-3 mt-2">
+            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase">Dossier
+              Médical</span>
+            <span class="text-slate-400 text-xs">ID: {{ patient.id }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button (click)="goToDiagnosticForm()"
+          class="flex items-center gap-2 px-6 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-all">
+          <span class="material-symbols-outlined text-sm">add_notes</span> Diagnostic
+        </button>
+        <button (click)="goToPrescriptionForm()"
+          class="flex items-center gap-2 px-6 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-dark transition-all">
+          <span class="material-symbols-outlined text-sm">medication</span> Ordonnance
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="flex border-b border-slate-100">
+    <button (click)="setActiveTab('resume')"
+      [ngClass]="activeTab === 'resume' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700'"
+      class="px-8 py-4 border-b-2 text-sm font-bold transition-all">
+      Résumé Clinique
+    </button>
+    <button (click)="setActiveTab('documents')"
+      [ngClass]="activeTab === 'documents' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700'"
+      class="px-8 py-4 border-b-2 text-sm font-bold transition-all">
+      Documents
+    </button>
+    <button (click)="setActiveTab('actes')"
+      [ngClass]="activeTab === 'actes' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700'"
+      class="px-8 py-4 border-b-2 text-sm font-bold transition-all">
+      Actes Cliniques
+    </button>
+  </div>
+
+  <div class="tab-content animate-fadeIn" style="animation-delay: 0.1s">
+
+    <!-- Résumé Clinique -->
+    <div *ngIf="activeTab === 'resume'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-1 space-y-8">
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500">
+              <span class="material-symbols-outlined">vital_signs</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Données Vitales</h3>
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Groupe Sanguin</span>
+              <span class="text-base font-bold text-rose-600">{{ patient.groupeSanguin || 'N/A' }}</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Poids Actuel</span>
+              <span class="text-base font-bold text-slate-800">{{ (patient.poids || 0) }} kg</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Taille</span>
+              <span class="text-base font-bold text-slate-800">{{ (patient.taille || 0) }} m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-8">
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-500">
+              <span class="material-symbols-outlined">history_edu</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Antécédents & Terrain</h3>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-lg">
+              <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Allergies Connues</h4>
+              <p class="text-slate-700 font-medium text-sm leading-relaxed">{{ patient.allergies || 'Aucune allergie
+                signalée.' }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 bg-slate-50 border border-slate-100 rounded-lg">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Pathologies</h4>
+                <p class="text-slate-700 font-medium text-sm leading-relaxed">{{ patient.conditions || 'Aucune condition
+                  chronique.' }}</p>
+              </div>
+              <div class="p-4 bg-slate-50 border border-slate-100 rounded-lg">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Médicaments</h4>
+                <p class="text-slate-700 font-medium text-sm leading-relaxed">{{ patient.medicamentsActuels || 'Pas de
+                  traitement en cours.' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Partagés -->
+    <div *ngIf="activeTab === 'documents'"
+      class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden animate-fadeIn">
+      <div class="p-6 border-b border-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-1">Documents Patients</h3>
+        <p class="text-slate-400 text-xs font-bold">Partagés par le patient.</p>
+      </div>
+
+      <div class="overflow-x-auto" *ngIf="documentsPatients.length > 0; else noDocs">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50/50">
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Document</th>
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</th>
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let doc of documentsPatients" class="hover:bg-slate-50 transition-colors">
+              <td class="px-8 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-slate-400">description</span>
+                  <span class="font-bold text-slate-700 text-sm">{{ doc.titre }}</span>
+                </div>
+              </td>
+              <td class="px-8 py-4">
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold uppercase">{{
+                  doc.type }}</span>
+              </td>
+              <td class="px-8 py-4 text-xs font-bold text-slate-400">{{ doc.date | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-8 py-4 text-right">
+                <button (click)="openDocument(doc.fichierURL, doc.titre)"
+                  class="p-2 text-slate-300 hover:text-primary hover:bg-slate-50 rounded-lg transition-all">
+                  <span class="material-symbols-outlined text-xl">visibility</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actes Cliniques -->
+    <div *ngIf="activeTab === 'actes'"
+      class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden animate-fadeIn">
+      <div class="p-6 border-b border-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-1">Actes Cliniques</h3>
+        <p class="text-slate-400 text-xs font-bold">Actes enregistrés par vous.</p>
+      </div>
+
+      <div class="overflow-x-auto" *ngIf="documentsMedecin.length > 0; else noActes">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50/50">
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Acte Clinique</th>
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+              <th class="px-8 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let acte of documentsMedecin" class="hover:bg-slate-50 transition-colors">
+              <td class="px-8 py-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    [ngClass]="acte.type === 'Diagnostic' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">{{ acte.type === 'Diagnostic' ? 'analytics' :
+                      'prescriptions' }}</span>
+                  </div>
+                  <div>
+                    <span class="font-bold text-slate-700 text-sm block">{{ acte.titre }}</span>
+                    <span class="text-[9px] font-bold uppercase tracking-wider"
+                      [ngClass]="acte.type === 'Diagnostic' ? 'text-indigo-400' : 'text-emerald-400'">{{ acte.type
+                      }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-8 py-4 text-xs font-bold text-slate-400">{{ acte.date | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-8 py-4 text-right">
+                <button (click)="openDocument(acte.fichierURL, acte.titre)"
+                  class="px-3 py-1 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-bold uppercase hover:bg-primary hover:text-white transition-all">
+                  Ouvrir
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #notfound>
+  <div class="flex flex-col items-center justify-center py-24 bg-white rounded-xl border border-slate-100">
+    <div class="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-6">
+      <span class="material-symbols-outlined text-4xl text-slate-200">person_off</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">Dossier introuvable</h3>
+    <p class="text-slate-400 font-medium max-w-xs text-center">Vous n'avez pas l'autorisation d'accéder à ce dossier ou
+      il a été supprimé.</p>
+  </div>
+</ng-template>
+
+<ng-template #noDocs>
+  <div class="p-12 text-center">
+    <p class="text-slate-400 font-bold italic">Aucun document partagé par ce patient.</p>
+  </div>
+</ng-template>
+
+<ng-template #noActes>
+  <div class="p-12 text-center">
+    <p class="text-slate-400 font-bold italic">Vous n'avez pas encore enregistré d'actes pour ce patient.</p>
+  </div>
+</ng-template>

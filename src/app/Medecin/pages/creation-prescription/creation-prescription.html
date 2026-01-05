@@ -1,0 +1,161 @@
+<div class="max-w-6xl mx-auto space-y-6">
+
+  <button (click)="goBack()" class="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80">
+
+    <span class="material-symbols-outlined">arrow_back</span>
+
+    Retour au Dossier Patient
+
+  </button>
+
+  <div class="bg-white dark:bg-dark-gray/10 rounded-xl shadow-sm border border-gray-200 dark:border-white/10 p-6">
+
+    <h2 class="text-dark-gray dark:text-white text-2xl font-bold mb-1">Créer une Prescription Médicale</h2>
+
+    <p class="text-dark-gray/60 dark:text-white/60 text-base mb-6">Émission d'une nouvelle ordonnance pour **{{ patientName }}**.</p>
+
+    
+
+    <form [formGroup]="prescriptionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+      
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div>
+
+          <label for="titre" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Titre de l'Ordonnance <span class="text-red-500">*</span></label>
+
+          <input id="titre" formControlName="titre" type="text"
+
+                 class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+        </div>
+
+        <div>
+
+          <label for="dateEmission" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Date d'Émission <span class="text-red-500">*</span></label>
+
+          <input id="dateEmission" formControlName="dateEmission" type="date"
+
+                 class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+        </div>
+
+      </div>
+
+      
+
+      <hr class="dark:border-white/10">
+
+      
+
+      <h3 class="text-lg font-bold text-dark-gray dark:text-white">Détails des Médicaments</h3>
+
+      
+
+      <div formArrayName="detailsMedicaments" class="space-y-4">
+
+        
+
+        <div *ngFor="let medicamentGroup of detailsMedicaments.controls; let i = index" [formGroupName]="i" 
+
+             class="p-4 rounded-lg border border-gray-200 dark:border-dark-gray/20 relative">
+
+          
+
+          <h4 class="font-semibold mb-3">Médicament #{{ i + 1 }}</h4>
+
+          <div class="mb-4">
+
+            <label [for]="'medicament-' + i" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Nom du Médicament <span class="text-red-500">*</span></label>
+
+            <input [id]="'medicament-' + i" formControlName="medicament" type="text" placeholder="Ex: Amoxicilline 500mg"
+
+                   class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            <div>
+
+              <label [for]="'posologie-' + i" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Posologie <span class="text-red-500">*</span></label>
+
+              <input [id]="'posologie-' + i" formControlName="posologie" type="text" placeholder="Ex: 1 comprimé"
+
+                     class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+            </div>
+
+            <div>
+
+              <label [for]="'frequence-' + i" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Fréquence <span class="text-red-500">*</span></label>
+
+              <input [id]="'frequence-' + i" formControlName="frequence" type="text" placeholder="Ex: 2 fois par jour"
+
+                     class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+            </div>
+
+            <div>
+
+              <label [for]="'duree-' + i" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Durée <span class="text-red-500">*</span></label>
+
+              <input [id]="'duree-' + i" formControlName="duree" type="text" placeholder="Ex: 7 jours"
+
+                     class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+            </div>
+
+          </div>
+
+          
+
+          <div class="mt-4">
+
+            <label [for]="'notes-' + i" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Notes / Conseils</label>
+
+            <input [id]="'notes-' + i" formControlName="notes" type="text" placeholder="Ex: À prendre avec de la nourriture"
+
+                   class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+
+          </div>
+
+          <button *ngIf="detailsMedicaments.length > 1" type="button" (click)="removeMedicamentLine(i)" class="absolute top-2 right-2 text-red-500 hover:text-red-700" title="Supprimer cette ligne">
+
+            <span class="material-symbols-outlined text-base">close</span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <button type="button" (click)="addMedicamentLine()" class="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80">
+
+        <span class="material-symbols-outlined text-base">add</span>
+
+        Ajouter un autre médicament
+
+      </button>
+
+      <div class="pt-4 flex justify-end">
+
+        <button type="submit" [disabled]="prescriptionForm.invalid || isSubmitting" 
+
+                class="flex items-center gap-2 px-6 py-2 rounded-lg bg-success text-white text-base font-bold hover:bg-success/90 disabled:bg-success/50 transition-colors">
+
+          <span *ngIf="isSubmitting" class="material-symbols-outlined animate-spin">refresh</span>
+
+          <span *ngIf="!isSubmitting">Émettre l'Ordonnance</span>
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

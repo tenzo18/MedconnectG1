@@ -1,0 +1,68 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6">
+  <!-- Header Section -->
+  <div class="flex flex-wrap justify-between gap-4 items-center">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-3">
+        <img src="/med-connect.png" alt="Med-Connect" class="h-10 w-auto">
+        <div>
+          <h1 class="text-dark-gray dark:text-white text-3xl font-bold leading-tight tracking-tight">
+            Tableau de Bord Admin
+          </h1>
+          <p class="text-dark-gray/60 dark:text-white/60 text-base font-normal leading-normal">
+            Vue d'ensemble du système Med-Connect
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+    </div>
+    <p class="text-dark-gray/60 dark:text-white/60 text-lg">Chargement des données...</p>
+  </div>
+
+  <!-- Test des nouveaux composants -->
+  <div *ngIf="!loading && stats" class="space-y-8">
+    
+    <!-- Test Status Card -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <app-status-card
+        title="Total Utilisateurs"
+        [value]="stats.totalUsers || 0"
+        subtitle="Tous les rôles confondus"
+        icon="groups"
+        type="primary">
+      </app-status-card>
+
+      <app-status-card
+        title="Médecins Actifs"
+        [value]="stats.activeDoctors || 0"
+        subtitle="Médecins vérifiés"
+        icon="stethoscope"
+        type="success">
+      </app-status-card>
+    </div>
+
+    <!-- Test Chart Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <app-chart-card 
+        title="Test Chart"
+        subtitle="Test des graphiques">
+        
+        <app-simple-chart
+          type="bar"
+          [data]="userDistributionData"
+          [showLegend]="true">
+        </app-simple-chart>
+      </app-chart-card>
+
+      <app-activity-feed
+        title="Activité Test"
+        [activities]="recentActivities">
+      </app-activity-feed>
+    </div>
+  </div>
+</div>

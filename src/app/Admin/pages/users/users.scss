@@ -1,0 +1,248 @@
+/* Users Page Styles - School Database Theme */
+:host {
+  display: block;
+  height: 100vh;
+  background: #F1F5F9;
+  overflow: hidden;
+}
+
+/* Layout styles - No scroll */
+.users-layout {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Fixed height table container */
+.table-container {
+  height: 320px; /* Fixed height for exactly 5 rows */
+  overflow: hidden;
+}
+
+/* User list styles - No scroll */
+.user-list {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.user-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 64px; /* Fixed height per row */
+  
+  &:hover {
+    background-color: #F8FAFC;
+  }
+  
+  &.selected {
+    background-color: rgba(79, 124, 255, 0.05);
+    border-left: 4px solid #4F7CFF;
+  }
+}
+
+/* Details panel styles - No scroll */
+.details-panel {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* User avatar styles */
+.user-avatar {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Status dot animation */
+.status-dot {
+  position: relative;
+  
+  &.active {
+    animation: pulse-success 2s infinite;
+  }
+  
+  &.inactive {
+    animation: pulse-danger 2s infinite;
+  }
+}
+
+@keyframes pulse-success {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+  }
+}
+
+/* Action buttons */
+.action-btn {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Search input */
+.search-input {
+  transition: all 0.3s ease;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.1);
+  }
+}
+
+/* Tab buttons */
+.tab-button {
+  transition: all 0.2s ease;
+  position: relative;
+  
+  &.active {
+    background: #4F7CFF;
+    color: white;
+  }
+  
+  &:not(.active):hover {
+    background: rgba(79, 124, 255, 0.1);
+    color: #4F7CFF;
+  }
+}
+
+/* Pagination styles */
+.pagination-controls {
+  background: white;
+  border-top: 1px solid #E5E7EB;
+  
+  button {
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background-color: #F3F4F6;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    &.active {
+      background-color: #4F7CFF;
+      color: white;
+      
+      &:hover {
+        background-color: #3B5FE8;
+      }
+    }
+  }
+  
+  .page-info {
+    color: #6B7280;
+    font-size: 0.875rem;
+  }
+}
+
+/* Truncate long text */
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Line clamp for descriptions */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Empty state */
+.empty-state {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading animation */
+.loading-container {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .details-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    
+    &.open {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Grid layout for table */
+.table-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 0.5fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Fixed height containers - No scroll */
+.fixed-height-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Compact spacing for no-scroll layout */
+.compact-spacing {
+  padding: 0.75rem 1.5rem;
+}
+
+.compact-text {
+  line-height: 1.4;
+}

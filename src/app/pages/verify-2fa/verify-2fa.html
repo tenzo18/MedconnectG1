@@ -1,0 +1,85 @@
+<div class="relative font-display antialiased">
+  <main class="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden">
+    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-12">
+      <div class="flex justify-center">
+
+        <div
+          class="max-w-md w-full mx-auto text-center bg-white px-6 sm:px-10 py-12 rounded-2xl shadow-xl border border-slate-100">
+          <header class="mb-10">
+            <div class="flex justify-center mb-6">
+              <img src="med-connect.png" alt="Med Connect Logo" class="h-16 w-auto">
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">Vérification du Compte</h1>
+            <p class="text-sm text-slate-500">Saisissez le code de vérification à 4 chiffres envoyé à votre adresse
+              email.</p>
+          </header>
+
+          <form id="otp-form" (ngSubmit)="onSubmit()">
+            <div class="flex items-center justify-center gap-4 mb-8">
+              @for (digit of digits; track $index) {
+              <input type="text"
+                class="w-14 h-14 text-center text-2xl font-extrabold text-slate-900 bg-slate-50 border border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 appearance-none rounded-xl outline-none transition-all duration-200"
+                pattern="\d*" maxlength="1" [(ngModel)]="digits[$index]" [name]="'digit-' + $index"
+                (input)="handleInput($event, $index)" (keydown)="handleKeyDown($event, $index)"
+                (focus)="handleFocus($event)" (paste)="handlePaste($event)" />
+              }
+            </div>
+
+            <!-- Message d'erreur -->
+            @if (error) {
+            <div
+              class="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-lg text-sm flex items-center justify-center animate-fadeIn">
+              <span class="material-symbols-outlined mr-2 text-lg">error</span>
+              {{ error }}
+            </div>
+            }
+
+            <div class="max-w-xs mx-auto mb-6">
+              <button type="submit" [disabled]="loading || combinedCode.length !== 4"
+                class="w-full inline-flex justify-center whitespace-nowrap rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-primary/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (loading) {
+                <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Vérification...
+                } @else {
+                Vérifier le compte
+                }
+              </button>
+            </div>
+          </form>
+
+          <div class="text-sm text-slate-500">
+            Vous n'avez pas reçu le code ?
+            <button (click)="resendCode()"
+              class="font-semibold text-primary hover:text-primary-dark transition-colors">Renvoyer</button>
+          </div>
+
+          <div class="mt-8 pt-8 border-t border-slate-50">
+            <button (click)="cancel()"
+              class="text-sm text-slate-400 hover:text-slate-600 flex items-center justify-center mx-auto transition-colors">
+              <span class="material-symbols-outlined mr-1 text-base">arrow_back</span>
+              Retour à la connexion
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="absolute left-6 right-6 bottom-8 text-center md:text-left hidden md:block">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-xs text-slate-400 font-medium">
+        &copy; 2026 Med Connect - Solution d'Administration Médicale.
+      </p>
+      <div class="flex gap-6">
+        <a href="#" class="text-xs text-slate-400 hover:text-primary transition-colors">Conditions d'Utilisation</a>
+        <a href="#" class="text-xs text-slate-400 hover:text-primary transition-colors">Politique de Confidentialité</a>
+      </div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,404 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6 animate-fadeIn">
+
+  <app-loading-spinner *ngIf="loading" message="Chargement de votre profil..." icon="person"></app-loading-spinner>
+
+  <ng-container *ngIf="!loading">
+    <!-- En-tête avec informations de base (Clean Dashboard Style) -->
+    <div
+      class="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm transition-all overflow-hidden relative group">
+      <!-- Subtle background pattern or accent -->
+      <div
+        class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110">
+      </div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <img [src]="currentPhotoUrl || 'icon.png'" alt="Photo de profil"
+              class="w-24 h-24 rounded-2xl object-cover border-4 border-slate-50 shadow-sm" />
+            <div
+              class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
+              <span class="material-symbols-outlined text-white text-sm font-bold">verified</span>
+            </div>
+            <div *ngIf="uploadProgress > 0 && uploadProgress < 100"
+              class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-2xl">
+              <span class="text-white text-sm font-bold">{{ uploadProgress }}%</span>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center gap-3">
+              <h1 class="text-3xl font-bold text-slate-800 tracking-tight">
+                <ng-container *ngIf="currentUser?.role === 'DOCTOR'">Dr. </ng-container>
+                {{ getUserFullName() }}
+              </h1>
+              <span
+                class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-wider">
+                {{ currentUser?.role }}
+              </span>
+            </div>
+            <p class="text-slate-500 text-lg flex items-center gap-2" *ngIf="currentUser?.role === 'DOCTOR'">
+              <span class="material-symbols-outlined text-primary/60 text-base">medical_services</span>
+              {{ currentUser?.specialty || 'Médecin généraliste' }}
+            </p>
+            <div class="flex flex-wrap items-center gap-4 mt-3 text-slate-400">
+              <div class="flex items-center gap-2" *ngIf="currentUser?.role === 'DOCTOR'">
+                <span class="material-symbols-outlined text-lg">badge</span>
+                <span class="text-xs font-medium uppercase tracking-wider">N° {{ currentUser?.licenseNumber || 'Non
+                  renseigné' }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">calendar_today</span>
+                <span class="text-xs font-medium uppercase tracking-wider text-decoration-none">Membre depuis {{
+                  getMemberSince() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col lg:items-end gap-3">
+          <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl">
+            <span class="material-symbols-outlined text-primary text-lg">verified_user</span>
+            <span class="text-sm font-bold text-slate-700">Compte Certifié</span>
+          </div>
+          <div class="lg:text-right">
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Dernière connexion</p>
+            <p class="text-slate-700 font-bold">{{ getLastConnection() }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques du profil (Dashboard Style Grid) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Patients</p>
+            <p class="text-2xl font-bold text-slate-800">{{ profileStats.patientsConnectes }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined">medical_information</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Consultations</p>
+            <p class="text-2xl font-bold text-slate-800">{{ profileStats.consultationsTotal }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+            <span class="material-symbols-outlined">mail</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Non lus</p>
+            <p class="text-2xl font-bold text-slate-800">{{ profileStats.messagesNonLus }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+            <span class="material-symbols-outlined">pending_actions</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">En attente</p>
+            <p class="text-2xl font-bold text-slate-800">{{ profileStats.demandesEnAttente }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Slots -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <!-- Navigation Tabs -->
+      <div class="border-b border-slate-50 bg-slate-50/30 px-6">
+        <nav class="flex gap-2">
+          <button *ngFor="let tab of tabs" (click)="activeTab = tab.id"
+            [class]="activeTab === tab.id ? 'text-primary border-primary bg-white shadow-sm' : 'text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50'"
+            class="flex items-center gap-2 px-6 py-4 font-bold text-sm transition-all border-b-2 -mb-[1px] first:rounded-tl-xl last:rounded-tr-xl">
+            <span class="material-symbols-outlined text-xl">{{ tab.icon }}</span>
+            <span>{{ tab.label }}</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-8">
+        <!-- Onglet Informations Personnelles -->
+        <div *ngIf="activeTab === 'personal'" class="animate-fadeIn space-y-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-slate-800">Informations Personnelles</h3>
+              <p class="text-slate-400 text-sm mt-1">Gérez vos coordonnées et votre photo de profil</p>
+            </div>
+            <button (click)="toggleEditMode('personal')"
+              [class]="editMode.personal ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100' : 'bg-primary text-white hover:bg-primary-dark shadow-sm shadow-primary/20'"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all border">
+              <span class="material-symbols-outlined text-sm">{{ editMode.personal ? 'close' : 'edit' }}</span>
+              <span>{{ editMode.personal ? 'Annuler' : 'Modifier le profil' }}</span>
+            </button>
+          </div>
+
+          <form [formGroup]="profilForm" (ngSubmit)="onSaveProfil()" class="space-y-8">
+
+            <!-- Photo Selection Tool -->
+            <div class="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+              <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="relative group">
+                  <img [src]="currentPhotoUrl || 'icon.png'" alt="Photo de profil"
+                    class="w-28 h-28 rounded-3xl object-cover border-4 border-white shadow-md transition-transform group-hover:scale-105" />
+                  <label *ngIf="editMode.personal"
+                    class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-white text-3xl">add_a_photo</span>
+                    <input type="file" accept="image/*" (change)="onPhotoSelected($event)" class="hidden">
+                  </label>
+                </div>
+
+                <div class="flex-1 text-center md:text-left space-y-3">
+                  <h4 class="text-slate-700 font-bold">Ma Photo de Profil</h4>
+                  <p class="text-sm text-slate-400 max-w-sm">
+                    Utilisez une photo nette pour que vos patients puissent vous identifier facilement.
+                  </p>
+
+                  <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                    <label
+                      class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:border-primary hover:text-primary cursor-pointer transition-all text-xs font-bold uppercase tracking-wider">
+                      <span class="material-symbols-outlined text-sm">upload</span>
+                      Changer la photo
+                      <input type="file" accept="image/*" (change)="onPhotoSelected($event)" class="hidden">
+                    </label>
+
+                    <button *ngIf="currentPhotoUrl" type="button" (click)="onRemovePhoto()"
+                      class="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-100 text-rose-600 rounded-lg hover:bg-rose-100 transition-all text-xs font-bold uppercase tracking-wider">
+                      <span class="material-symbols-outlined text-sm">delete</span>
+                      Supprimer
+                    </button>
+                  </div>
+                  <p *ngIf="uploadError" class="text-xs text-rose-500 font-medium">{{ uploadError }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Input Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Prénom <span
+                    class="text-rose-500 ml-1">*</span></label>
+                <input formControlName="prenom" type="text" [disabled]="!editMode.personal"
+                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-slate-700 font-medium disabled:opacity-50" />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Nom <span
+                    class="text-rose-500 ml-1">*</span></label>
+                <input formControlName="nom" type="text" [disabled]="!editMode.personal"
+                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-slate-700 font-medium disabled:opacity-50" />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Email (Non
+                  modifiable)</label>
+                <div class="relative">
+                  <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">mail</span>
+                  <input [value]="currentUser?.email" type="email" [disabled]="true"
+                    class="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-400 font-medium cursor-not-allowed" />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Téléphone</label>
+                <div class="relative">
+                  <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">phone</span>
+                  <input formControlName="telephone" type="tel" [disabled]="!editMode.personal"
+                    class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-slate-700 font-medium disabled:opacity-50" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Professional Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-50"
+              *ngIf="currentUser?.role === 'DOCTOR'">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Spécialité <span
+                    class="text-rose-500 ml-1">*</span></label>
+                <select formControlName="specialite" [disabled]="!editMode.personal"
+                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-slate-700 font-bold disabled:opacity-50 appearance-none">
+                  <option value="">Sélectionner une spécialité</option>
+                  <option *ngFor="let spec of specialites" [value]="spec">{{ spec }}</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  class="block text-xs font-bold text-slate-400 uppercase tracking-widest text-decoration-none">Numéro
+                  d'Ordre</label>
+                <input formControlName="numeroOrdre" type="text" [disabled]="true"
+                  class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-400 font-bold cursor-not-allowed" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-4" *ngIf="editMode.personal">
+              <button type="button" (click)="toggleEditMode('personal')"
+                class="px-6 py-3 text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 font-bold text-sm transition-all border border-slate-200">
+                Annuler
+              </button>
+              <button type="submit" [disabled]="profilForm.invalid || isSubmitting"
+                class="flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark disabled:bg-slate-300 disabled:cursor-not-allowed font-bold text-sm transition-all shadow-md shadow-primary/20">
+                <span class="material-symbols-outlined text-sm animate-spin"
+                  *ngIf="isSubmitting">progress_activity</span>
+                <span>{{ isSubmitting ? 'Sauvegarde en cours...' : 'Enregistrer les modifications' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Onglet Sécurité -->
+        <div *ngIf="activeTab === 'security'" class="animate-fadeIn space-y-8">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-slate-800">Sécurité & Confidentialité</h3>
+              <p class="text-slate-400 text-sm mt-1">Gérez vos paramètres de sécurité et vos sessions</p>
+            </div>
+            <div
+              class="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
+              <span class="material-symbols-outlined text-base">verified_user</span>
+              <span class="text-xs font-bold uppercase tracking-wider">Compte Sécurisé</span>
+            </div>
+          </div>
+
+          <!-- 2FA Box -->
+          <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="material-symbols-outlined text-6xl text-primary">security</span>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-14 h-14 bg-white border border-indigo-200 rounded-xl flex items-center justify-center text-primary shadow-sm">
+                  <span class="material-symbols-outlined text-3xl">lock_open</span>
+                </div>
+                <div class="space-y-1">
+                  <h4 class="text-lg font-bold text-indigo-900">Authentification à deux facteurs</h4>
+                  <p class="text-indigo-600/70 text-sm">Empêchez les accès non autorisés avec un code de vérification.
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span
+                  class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-full">Actif</span>
+                <button
+                  class="px-6 py-2 bg-white border border-indigo-200 text-primary hover:bg-indigo-100 rounded-xl text-sm font-bold transition-all shadow-sm">
+                  Désactiver
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Password Form -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 space-y-6">
+              <div class="flex items-center gap-3 border-b border-slate-50 pb-4">
+                <span class="material-symbols-outlined text-slate-400">password</span>
+                <h4 class="font-bold text-slate-800 text-decoration-none">Changer le mot de passe</h4>
+              </div>
+
+              <form [formGroup]="passwordForm" (ngSubmit)="onSavePassword()" class="space-y-5">
+                <div class="space-y-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mot de passe
+                    actuel</label>
+                  <input formControlName="currentPassword" type="password"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary outline-none transition-all rounded-xl" />
+                </div>
+
+                <div class="space-y-4">
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nouveau mot de
+                      passe</label>
+                    <input formControlName="newPassword" type="password"
+                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary outline-none transition-all" />
+                    <!-- Strength indicator -->
+                    <div class="flex items-center gap-3 pt-1">
+                      <div class="flex-1 flex gap-1">
+                        <div *ngFor="let i of [0,1,2,3]" class="h-1 flex-1 rounded-full transition-all"
+                          [class]="getPasswordStrengthBarClass(i)"></div>
+                      </div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider"
+                        [class]="getPasswordStrengthClass()">{{
+                        getPasswordStrengthText() }}</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label
+                      class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest text-decoration-none">Confirmer</label>
+                    <input formControlName="confirmPassword" type="password"
+                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-primary outline-none transition-all" />
+                  </div>
+                </div>
+
+                <p *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched"
+                  class="text-xs text-rose-500 font-bold flex items-center gap-2">
+                  <span class="material-symbols-outlined text-sm">notifications</span> Les mots de passe ne
+                  correspondent
+                  pas
+                </p>
+
+                <button type="submit" [disabled]="passwordForm.invalid || isSubmitting"
+                  class="w-full py-3.5 bg-slate-800 text-white rounded-xl hover:bg-black font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-3">
+                  <span class="material-symbols-outlined text-sm" *ngIf="isSubmitting">update</span>
+                  {{ isSubmitting ? 'Chargement...' : 'MàJ Mot de Passe' }}
+                </button>
+              </form>
+            </div>
+
+            <!-- Login Sessions -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 space-y-6">
+              <div class="flex items-center gap-3 border-b border-slate-50 pb-4">
+                <span class="material-symbols-outlined text-slate-400">devices</span>
+                <h4 class="font-bold text-slate-800">Sessions Actives</h4>
+              </div>
+
+              <div class="divide-y divide-slate-50">
+                <div *ngFor="let session of recentSessions" class="py-4 flex items-center justify-between group">
+                  <div class="flex items-center gap-4">
+                    <div [class]="session.current ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400'"
+                      class="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110">
+                      <span class="material-symbols-outlined">{{ session.device }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                      <p class="font-bold text-slate-700 text-sm">{{ session.location }}</p>
+                      <p class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{{ session.date }} •
+                        {{
+                        session.ip }}</p>
+                    </div>
+                  </div>
+                  <span *ngIf="session.current"
+                    class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded uppercase tracking-tighter">Actuelle</span>
+                </div>
+              </div>
+
+              <button
+                class="w-full py-3 bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 rounded-xl font-bold text-sm transition-all text-decoration-none">
+                Déconnecter tous les autres appareils
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

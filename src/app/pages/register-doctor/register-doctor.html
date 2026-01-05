@@ -1,0 +1,332 @@
+<div class="relative font-display antialiased">
+  <main class="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden py-12">
+    <div class="w-full max-w-4xl mx-auto px-4 md:px-6">
+      <div class="flex justify-center">
+
+        <div class="w-full max-w-2xl bg-white px-6 sm:px-10 py-12 rounded-2xl shadow-xl border border-slate-100">
+          <!-- Header -->
+          <header class="text-center mb-10">
+            <div class="flex justify-center mb-6 transition-transform hover:scale-105 duration-300">
+              <img src="med-connect.png" alt="Med Connect Logo" class="h-14 w-auto">
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">Inscription Professionnelle</h1>
+            <p class="text-sm text-slate-500">Rejoignez le réseau Med Connect et simplifiez votre pratique.</p>
+          </header>
+
+          <!-- Success Message -->
+          @if (success) {
+          <div
+            class="mb-8 bg-emerald-50 border border-emerald-100 text-emerald-700 px-6 py-4 rounded-xl flex items-center animate-fadeIn">
+            <span class="material-symbols-outlined mr-3 text-2xl">check_circle</span>
+            <div>
+              <p class="font-bold">Demande envoyée avec succès !</p>
+              <p class="text-sm opacity-90">Nous étudions votre profil. Vous allez être redirigé...</p>
+            </div>
+          </div>
+          }
+
+          <!-- Stepper -->
+          <div class="mb-12">
+            <div class="flex items-center justify-between max-w-md mx-auto relative">
+              <!-- Progress Line Background -->
+              <div class="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2"></div>
+              <!-- Active Progress Line -->
+              <div class="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 transition-all duration-500"
+                [style.width.%]="(currentStep - 1) * 50"></div>
+
+              @for (step of [1, 2, 3]; track step) {
+              <div class="relative z-10 flex flex-col items-center">
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 shadow-sm"
+                  [class.bg-primary]="currentStep >= step" [class.text-white]="currentStep >= step"
+                  [class.bg-white]="currentStep < step" [class.text-slate-400]="currentStep < step"
+                  [class.border-2]="currentStep < step" [class.border-slate-100]="currentStep < step">
+                  @if (currentStep > step) {
+                  <span class="material-symbols-outlined text-lg">check</span>
+                  } @else {
+                  {{ step }}
+                  }
+                </div>
+                <span
+                  class="absolute top-12 whitespace-nowrap text-[11px] font-bold uppercase tracking-wider transition-colors duration-300"
+                  [class.text-primary]="currentStep >= step" [class.text-slate-400]="currentStep < step">
+                  {{ step === 1 ? 'Personnel' : step === 2 ? 'Pro' : 'Sécurité' }}
+                </span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-4">
+
+            <div class="min-h-[320px]">
+              <!-- Step 1: Personal Info -->
+              @if (currentStep === 1) {
+              <div class="space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Prénom</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">person</span>
+                      <input type="text" formControlName="firstName" placeholder="Jean"
+                        class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('firstName')">
+                    </div>
+                    @if (getFieldError('firstName')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('firstName') }}</p>
+                    }
+                  </div>
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Nom</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">badge</span>
+                      <input type="text" formControlName="lastName" placeholder="Dupont"
+                        class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('lastName')">
+                    </div>
+                    @if (getFieldError('lastName')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('lastName') }}</p>
+                    }
+                  </div>
+                </div>
+
+                <div class="text-left">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Email Professionnel</label>
+                  <div class="relative group">
+                    <span
+                      class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">mail</span>
+                    <input type="email" formControlName="email" placeholder="jean.dupont@clinique.com"
+                      class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                      [class.border-red-400]="getFieldError('email')">
+                  </div>
+                  @if (getFieldError('email')) {
+                  <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('email') }}</p>
+                  }
+                </div>
+
+                <div class="text-left">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Téléphone</label>
+                  <div class="flex gap-3">
+                    <select formControlName="countryCode"
+                      class="w-28 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary transition-all">
+                      @for (country of countryCodes; track country.code) {
+                      <option [value]="country.code">{{ country.flag }} {{ country.code }}</option>
+                      }
+                    </select>
+                    <div class="relative flex-1 group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">phone</span>
+                      <input type="tel" formControlName="phone" placeholder="612345678"
+                        class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('phone')">
+                    </div>
+                  </div>
+                  @if (getFieldError('phone')) {
+                  <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('phone') }}</p>
+                  }
+                </div>
+              </div>
+              }
+
+              <!-- Step 2: Pro Info -->
+              @if (currentStep === 2) {
+              <div class="space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Spécialité</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors z-10 pointer-events-none">medical_services</span>
+                      <select formControlName="specialty"
+                        class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                        [class.border-red-400]="getFieldError('specialty')">
+                        <option value="">Sélectionnez</option>
+                        <option value="Généraliste">Médecin Généraliste</option>
+                        <option value="Cardiologie">Cardiologie</option>
+                        <option value="Dermatologie">Dermatologie</option>
+                        <option value="Pédiatrie">Pédiatrie</option>
+                        <option value="Gynécologie">Gynécologie</option>
+                        <option value="Ophtalmologie">Ophtalmologie</option>
+                      </select>
+                      <span
+                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                    </div>
+                    @if (getFieldError('specialty')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('specialty') }}</p>
+                    }
+                  </div>
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Numéro d'Ordre</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">description</span>
+                      <input type="text" formControlName="licenseNumber" placeholder="ONM-12345"
+                        class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('licenseNumber')">
+                    </div>
+                    @if (getFieldError('licenseNumber')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('licenseNumber') }}</p>
+                    }
+                  </div>
+                </div>
+
+                <div class="text-left">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Adresse du Cabinet</label>
+                  <div class="relative group">
+                    <span
+                      class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">home</span>
+                    <input type="text" formControlName="address" placeholder="123 Avenue de l'Indépendance"
+                      class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                  </div>
+                </div>
+
+                <div class="text-left">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Ville</label>
+                  <div class="relative group">
+                    <span
+                      class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">location_city</span>
+                    <input type="text" formControlName="city" placeholder="Yaoundé"
+                      class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                  </div>
+                </div>
+              </div>
+              }
+
+              <!-- Step 3: Security -->
+              @if (currentStep === 3) {
+              <div class="space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Mot de passe</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+                      <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                        placeholder="••••••••"
+                        class="w-full pl-12 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('password')">
+                      <button type="button" (click)="togglePasswordVisibility()"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none">
+                        <span class="material-symbols-outlined text-lg leading-none">
+                          {{ showPassword ? 'visibility_off' : 'visibility' }}
+                        </span>
+                      </button>
+                    </div>
+                    @if (getFieldError('password')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium leading-tight">{{
+                      getFieldError('password') }}</p>
+                    }
+                  </div>
+                  <div class="text-left">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 px-1">Confirmation</label>
+                    <div class="relative group">
+                      <span
+                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">verified_user</span>
+                      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword"
+                        placeholder="••••••••"
+                        class="w-full pl-12 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        [class.border-red-400]="getFieldError('confirmPassword')">
+                      <button type="button" (click)="toggleConfirmPasswordVisibility()"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none">
+                        <span class="material-symbols-outlined text-lg leading-none">
+                          {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
+                        </span>
+                      </button>
+                    </div>
+                    @if (getFieldError('confirmPassword')) {
+                    <p class="text-red-500 text-[11px] mt-1.5 px-1 font-medium">{{ getFieldError('confirmPassword') }}
+                    </p>
+                    }
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
+                  <div class="flex items-start">
+                    <input type="checkbox" id="acceptTerms" formControlName="acceptTerms"
+                      class="mt-1 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded cursor-pointer">
+                    <label for="acceptTerms" class="ml-3 text-xs text-slate-600 cursor-pointer leading-normal">
+                      J'accepte les <a href="#" class="text-primary font-bold hover:underline">conditions
+                        d'utilisation</a> et la <a href="#" class="text-primary font-bold hover:underline">politique de
+                        confidentialité</a> de Med Connect.
+                    </label>
+                  </div>
+                  @if (registerForm.get('acceptTerms')?.touched && registerForm.get('acceptTerms')?.errors) {
+                  <p class="text-red-500 text-[11px] mt-2 ml-7 font-medium">Vous devez accepter les conditions pour
+                    continuer.</p>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+
+            <!-- Error Banner -->
+            @if (error) {
+            <div
+              class="mt-6 bg-red-50 border border-red-100 text-red-600 px-4 py-2.5 rounded-lg text-sm flex items-center justify-center animate-fadeIn">
+              <span class="material-symbols-outlined mr-2 text-lg">error</span>
+              {{ error }}
+            </div>
+            }
+
+            <!-- Navigation Buttons -->
+            <div class="flex items-center justify-between mt-10 gap-4">
+              <button *ngIf="currentStep > 1" type="button" (click)="previousStep()"
+                class="flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-xl hover:bg-white hover:border-slate-300 transition-all">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+                <span>Précédent</span>
+              </button>
+
+              <div class="flex-1"></div>
+
+              <button *ngIf="currentStep < totalSteps" type="button" (click)='nextStep()'
+                class="flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all">
+                <span>Suivant</span>
+                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+              </button>
+
+              <button *ngIf="currentStep === totalSteps" type="submit" [disabled]="loading"
+                class="flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (loading) {
+                <svg class="animate-spin h-5 w-5 mr-1" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Finalisation...
+                } @else {
+                <span class="material-symbols-outlined text-lg">person_add</span>
+                Créer mon compte
+                }
+              </button>
+            </div>
+          </form>
+
+          <!-- Footer Link -->
+          <div class="mt-10 pt-8 border-t border-slate-50 text-center">
+            <p class="text-sm text-slate-500">
+              Déjà membre ?
+              <a routerLink="/login"
+                class="font-bold text-primary hover:text-primary-dark transition-colors border-b border-primary/20 hover:border-primary">Connectez-vous</a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="absolute left-6 right-6 bottom-8 text-center md:text-left hidden md:block">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-xs text-slate-400 font-medium">
+        &copy; 2026 Med Connect - Solution d'Administration Médicale.
+      </p>
+      <div class="flex gap-6">
+        <a href="#" class="text-xs text-slate-400 hover:text-primary transition-colors">Conditions d'Utilisation</a>
+        <a href="#" class="text-xs text-slate-400 hover:text-primary transition-colors">Politique de Confidentialité</a>
+      </div>
+    </div>
+  </footer>
+</div>

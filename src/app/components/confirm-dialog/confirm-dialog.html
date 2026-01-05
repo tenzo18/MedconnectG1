@@ -1,0 +1,21 @@
+<div class="confirm-dialog-overlay" 
+     [@fadeIn] 
+     (click)="onCancel()">
+  <div class="confirm-dialog-container" 
+       [@slideIn] 
+       (click)="$event.stopPropagation()">
+    <div class="confirm-dialog-icon">
+      <span class="material-symbols-outlined">{{ icon }}</span>
+    </div>
+    <h2 class="confirm-dialog-title">{{ title }}</h2>
+    <p class="confirm-dialog-message">{{ message }}</p>
+    <div class="confirm-dialog-actions">
+      <button class="btn-cancel" (click)="onCancel()">
+        {{ cancelText }}
+      </button>
+      <button class="btn-confirm" (click)="onConfirm()">
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

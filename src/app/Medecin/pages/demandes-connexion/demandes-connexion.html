@@ -1,0 +1,164 @@
+<div class="max-w-7xl mx-auto space-y-10 animate-fadeIn">
+  <div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-bold text-slate-800">
+      Demandes de Connexion
+    </h1>
+    <p class="text-slate-500 text-base">
+      Gérez les autorisations d'accès aux dossiers médicaux partagés par vos patients.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <span class="material-symbols-outlined text-xl">pending_actions</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">En attente</p>
+            <p class="text-xl font-bold text-slate-800">{{ demandesEnAttente.length }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm transition-all group">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined text-xl">verified_user</span>
+          </div>
+          <div>
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Acceptées</p>
+            <p class="text-xl font-bold text-slate-800">{{ demandesAcceptees }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Barre d'outils Intelligente -->
+  <div
+    class="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="relative w-full md:w-96">
+      <span
+        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterDemandes()"
+        placeholder="Rechercher par nom ou email..."
+        class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:bg-white focus:border-primary transition-all outline-none" />
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <select [(ngModel)]="selectedFilter" (change)="filterDemandes()"
+        class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-600 focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer">
+        <option value="">Tous les statuts</option>
+        <option value="recent">Plus récentes</option>
+        <option value="urgent">Urgentes</option>
+      </select>
+
+      <button (click)="actualiserDemandes()"
+        class="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+
+      <button (click)="accepterToutesLesDemandes()" [disabled]="demandesEnAttente.length === 0"
+        class="flex items-center gap-2 px-6 py-2 bg-slate-900 text-white rounded-lg font-bold text-sm hover:bg-slate-800 disabled:opacity-30 transition-all">
+        Accepter tout
+      </button>
+    </div>
+  </div>
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Chargement des demandes..."
+    icon="pending_actions"></app-loading-spinner>
+  <!-- Grille de Demandes -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    *ngIf="!loading && filteredDemandes.length > 0; else emptyState">
+    <div *ngFor="let demande of filteredDemandes; trackBy: trackByDemande"
+      class="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-4">
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + demande.nomPatient"
+            class="w-12 h-12 rounded-xl object-cover border border-slate-100 shadow-sm">
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm">{{ demande.nomPatient }}</h3>
+            <p class="text-xs text-slate-400 line-clamp-1 truncate w-32">{{ demande.emailPatient }}</p>
+          </div>
+        </div>
+        <span class="px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-[10px] font-bold uppercase">En attente</span>
+      </div>
+
+      <div class="p-3 bg-slate-50 rounded-lg">
+        <p class="text-slate-600 text-[11px] leading-relaxed italic line-clamp-2">
+          "{{ demande.message || 'Souhaite établir une connexion médicale avec vous.' }}"
+        </p>
+      </div>
+
+      <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">history</span>
+          {{ getTimeAgo(demande.dateDemande) }}
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">assignment_ind</span>
+          Vérifié
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button (click)="accepterDemande(demande.id)"
+          class="flex-1 py-2 bg-primary text-white rounded-lg font-bold text-xs hover:bg-primary-dark transition-all">
+          Accepter
+        </button>
+        <button (click)="refuserDemande(demande.id)"
+          class="px-3 py-2 bg-slate-50 text-slate-400 rounded-lg font-bold text-xs hover:bg-rose-50 hover:text-rose-600 transition-all">
+          Refuser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- État Vide Premium -->
+  <ng-template #emptyState>
+    <div *ngIf="!loading"
+      class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200">
+      <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mb-6">
+        <span class="material-symbols-outlined text-4xl text-slate-200">mark_as_unread</span>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Aucune nouvelle demande</h3>
+      <p class="text-slate-400 font-medium mb-8 max-w-sm text-center">Toutes les demandes ont été traitées.</p>
+      <button (click)="actualiserDemandes()"
+        class="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-all">
+        Actualiser la liste
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Historique des demandes traitées - Design Accordéon Minimal -->
+  <div class="space-y-6" *ngIf="demandesTraitees.length > 0">
+    <div class="flex items-center justify-between px-2">
+      <h3 class="text-lg font-bold text-slate-800">Historique récent</h3>
+      <button (click)="toggleHistorique()" class="text-sm font-bold text-primary hover:underline">
+        {{ showHistorique ? 'Masquer' : 'Voir tout' }}
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="showHistorique">
+      <div *ngFor="let demande of demandesTraitees.slice(0, 6)"
+        class="p-4 bg-white rounded-xl border border-slate-100 flex items-center gap-4 hover:shadow-sm transition-all">
+        <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + demande.nomPatient"
+          class="w-10 h-10 rounded-lg object-cover opacity-50">
+        <div class="flex-1">
+          <p class="font-bold text-slate-700 text-xs mb-0.5">{{ demande.nomPatient }}</p>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ demande.dateDemande |
+            date:'shortDate' }}</p>
+        </div>
+        <div [class]="demande.statut === 'ACCEPTEE' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'"
+          class="w-8 h-8 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-sm font-bold">
+            {{ demande.statut === 'ACCEPTEE' ? 'check' : 'close' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

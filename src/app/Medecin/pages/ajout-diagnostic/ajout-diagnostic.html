@@ -1,0 +1,54 @@
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <button (click)="goBack()" class="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Retour au Dossier Patient
+  </button>
+
+  <div class="bg-white dark:bg-dark-gray/10 rounded-xl shadow-sm border border-gray-200 dark:border-white/10 p-6">
+    <h2 class="text-dark-gray dark:text-white text-2xl font-bold mb-1">Ajouter un Diagnostic</h2>
+    <p class="text-dark-gray/60 dark:text-white/60 text-base mb-6">Enregistrement d'un nouvel acte clinique pour **{{ patientName }}**.</p>
+    
+    <form [formGroup]="diagnosticForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div>
+          <label for="titre" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Titre du Diagnostic <span class="text-red-500">*</span></label>
+          <input id="titre" formControlName="titre" type="text" placeholder="Ex: Consultation initiale - Bilan grippal"
+                 class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+          <p *ngIf="diagnosticForm.get('titre')?.invalid && diagnosticForm.get('titre')?.touched" class="text-xs text-red-500 mt-1">Le titre est requis.</p>
+        </div>
+        
+        <div>
+          <label for="dateActe" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Date de l'Acte <span class="text-red-500">*</span></label>
+          <input id="dateActe" formControlName="dateActe" type="date"
+                 class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+          <p *ngIf="diagnosticForm.get('dateActe')?.invalid && diagnosticForm.get('dateActe')?.touched" class="text-xs text-red-500 mt-1">La date est requise.</p>
+        </div>
+      </div>
+      
+      <div>
+        <label for="details" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Détails et Observations <span class="text-red-500">*</span></label>
+        <textarea id="details" formControlName="details" rows="6" placeholder="Observations cliniques, résultats d'examen, et conclusion du diagnostic..."
+                  class="form-textarea w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary"></textarea>
+        <p *ngIf="diagnosticForm.get('details')?.invalid && diagnosticForm.get('details')?.touched" class="text-xs text-red-500 mt-1">Les détails du diagnostic sont requis.</p>
+      </div>
+      
+      <div>
+        <label for="fichierURL" class="block text-sm font-medium text-dark-gray/80 dark:text-white/80 mb-1">Pièce Jointe (Optionnel)</label>
+        <input id="fichierURL" formControlName="fichierURL" type="file"
+               class="form-input w-full rounded-lg border-gray-300 dark:border-dark-gray/20 bg-secondary dark:bg-dark-gray/20 text-dark-gray dark:text-white focus:ring-primary focus:border-primary">
+        <p class="text-xs text-dark-gray/60 dark:text-white/60 mt-1">Ajouter un document associé (ex: schéma, rapport rapide). Ce champ simule l'upload.</p>
+      </div>
+      
+      <div class="pt-4 flex justify-end">
+        <button type="submit" [disabled]="diagnosticForm.invalid || isSubmitting" 
+                class="flex items-center gap-2 px-6 py-2 rounded-lg bg-primary text-white text-base font-bold hover:bg-primary/90 disabled:bg-primary/50 transition-colors">
+          <span *ngIf="isSubmitting" class="material-symbols-outlined animate-spin">refresh</span>
+          <span *ngIf="!isSubmitting">Enregistrer le Diagnostic</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

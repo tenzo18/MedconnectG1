@@ -1,0 +1,308 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6">
+  <!-- Header Section -->
+  <div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-bold text-slate-800">
+      Tableau de Bord Médecin
+    </h1>
+    <p class="text-slate-500 text-base">
+      {{ getGreeting() }}, Dr. {{ doctorName }} ! 👋
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Chargement du tableau de bord..."
+    icon="dashboard"></app-loading-spinner>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!loading && stats" class="space-y-8">
+
+    <!-- Top Section: Welcome & General Stats -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Welcome Card -->
+      <div
+        class="lg:col-span-4 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="space-y-2">
+          <h2 class="text-xl font-bold text-slate-800">Bonjour Dr. {{ doctorName }}! 🎉</h2>
+          <p class="text-slate-500 text-sm">Excellente journée sur Med-Connect !</p>
+        </div>
+
+        <div class="mt-8">
+          <p class="text-3xl font-bold text-primary">{{ stats.patientsConnectes || 0 }} Patients</p>
+          <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-wider">Connectés à votre compte</p>
+        </div>
+      </div>
+
+      <!-- General Stats Grid -->
+      <div class="lg:col-span-8 bg-white rounded-xl p-8 border border-slate-100 shadow-sm transition-all">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Statistiques Générales</h2>
+            <p class="text-slate-500 text-sm mt-1">Résumé de votre activité</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <span class="material-symbols-outlined text-lg">person_add_alt</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-bold uppercase truncate">Demandes</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.demandesEnAttente }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <span class="material-symbols-outlined text-lg">mail</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-bold uppercase truncate">Messages</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.messagesNonLus }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+              <span class="material-symbols-outlined text-lg">calendar_today</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-bold uppercase truncate">RDV Jour</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.rendezVousAujourdhui }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
+              <span class="material-symbols-outlined text-lg">folder_open</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-bold uppercase truncate">Dossiers</p>
+              <p class="text-xl font-bold text-slate-800">{{ stats.dossiersAccessibles }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytical Detailed Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Mes Patients Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Mes Patients</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">Total : {{ stats.patientsConnectes }}</p>
+          <p class="text-slate-400 text-xs mt-1">Évolution de votre patientèle.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+            routerLink="/medecin/mes-patients">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
+                <span class="material-symbols-outlined text-lg">groups</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">Connectés</p>
+                <p class="text-slate-400 text-[10px]">Patients actifs</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">{{ stats.patientsConnectes }}</p>
+              <div class="w-8 h-1 bg-indigo-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined text-lg">trending_up</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">Nouveaux</p>
+                <p class="text-slate-400 text-[10px]">Ce mois</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">+{{ stats.nouveauxPatientsMois }}</p>
+              <div class="w-8 h-1 bg-emerald-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activité Médicale Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Activité Médicale</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">RDV : {{ stats.rendezVousAujourdhui }}</p>
+          <p class="text-slate-400 text-xs mt-1">Consultations et prescriptions.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+            routerLink="/medecin/rendez-vous">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+                <span class="material-symbols-outlined text-lg">event_available</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">RDV Aujourd'hui</p>
+                <p class="text-slate-400 text-[10px]">À honorer</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">{{ stats.rendezVousAujourdhui }}</p>
+              <div class="w-8 h-1 bg-amber-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+                <span class="material-symbols-outlined text-lg">medication</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">Ordonnances</p>
+                <p class="text-slate-400 text-[10px]">Cette semaine</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">{{ stats.ordonnancesSemaine }}</p>
+              <div class="w-8 h-1 bg-rose-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Communication</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">Nouveau : {{ stats.messagesNonLus + stats.demandesEnAttente
+            }}</p>
+          <p class="text-slate-400 text-xs mt-1">Interactions avec vos patients.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+            routerLink="/medecin/messagerie">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500">
+                <span class="material-symbols-outlined text-lg">chat</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">Messages</p>
+                <p class="text-slate-400 text-[10px]">Non lus</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">{{ stats.messagesNonLus }}</p>
+              <div class="w-8 h-1 bg-sky-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+            routerLink="/medecin/demandes-connexion">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-lg">person_add</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-sm font-bold">Demandes</p>
+                <p class="text-slate-400 text-[10px]">En attente</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-sm font-bold">{{ stats.demandesEnAttente }}</p>
+              <div class="w-8 h-1 bg-primary rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section (Professional Charts) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Weekly Activity Chart -->
+      <div class="lg:col-span-2">
+        <app-chart-card title="Activité Hebdomadaire" subtitle="Nombre de consultations par jour">
+          <div
+            class="min-h-[300px] flex items-center justify-center bg-slate-50/30 rounded-xl border border-slate-100/50 p-4">
+            <apx-chart *ngIf="activityChartOptions" [series]="activityChartOptions.series"
+              [chart]="activityChartOptions.chart" [xaxis]="activityChartOptions.xaxis"
+              [colors]="activityChartOptions.colors" [fill]="activityChartOptions.fill"
+              [stroke]="activityChartOptions.stroke" [dataLabels]="activityChartOptions.dataLabels"
+              [tooltip]="activityChartOptions.tooltip" class="w-full">
+            </apx-chart>
+          </div>
+        </app-chart-card>
+      </div>
+
+      <!-- Patient Distribution Chart -->
+      <div class="lg:col-span-1">
+        <app-chart-card title="Répartition des Patients" subtitle="Par type de pathologie">
+          <div
+            class="min-h-[300px] flex items-center justify-center bg-slate-50/30 rounded-xl border border-slate-100/50 p-4">
+            <apx-chart *ngIf="patientDistributionOptions" [series]="patientDistributionOptions.series"
+              [chart]="patientDistributionOptions.chart" [labels]="patientDistributionOptions.labels"
+              [colors]="patientDistributionOptions.colors" [legend]="patientDistributionOptions.legend"
+              [plotOptions]="patientDistributionOptions.plotOptions" class="w-full">
+            </apx-chart>
+          </div>
+        </app-chart-card>
+      </div>
+    </div>
+
+    <!-- Recent Patients Table Section -->
+    <div class="mt-8">
+      <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-6">Patients Récents</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100">
+                <th class="pb-4 font-bold text-slate-400 text-[10px] uppercase tracking-wider">Patient</th>
+                <th class="pb-4 font-bold text-slate-400 text-[10px] uppercase tracking-wider">Statut</th>
+                <th class="pb-4 font-bold text-slate-400 text-[10px] uppercase tracking-wider text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr *ngFor="let patient of stats.patientsRecents" class="hover:bg-slate-50/50 transition-colors">
+                <td class="py-4">
+                  <div class="flex items-center gap-3">
+                    <img [src]="patient.photo || 'icon.png'" [alt]="patient.nom"
+                      class="rounded-full w-8 h-8 object-cover border border-slate-200">
+                    <p class="font-bold text-slate-800 text-sm truncate">{{ patient.nom }}</p>
+                  </div>
+                </td>
+                <td class="py-4">
+                  <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase">
+                    {{ patient.statut }}
+                  </span>
+                </td>
+                <td class="py-4 text-right">
+                  <a [routerLink]="['/medecin/dossier-patient', patient.id]"
+                    class="inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-dark transition-all text-xs font-bold">
+                    Détails
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="stats.patientsRecents.length === 0" class="py-12 text-center text-slate-400 text-sm">
+            Aucun patient récent
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

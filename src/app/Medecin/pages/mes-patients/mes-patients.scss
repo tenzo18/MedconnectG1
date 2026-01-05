@@ -1,0 +1,98 @@
+/* Mes Patients Styles - Thème Medflex */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+/* Animations d'entrée */
+.grid>div,
+.bg-white {
+  animation: slideInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+@for $i from 1 through 20 {
+
+  .grid>div:nth-child(#{$i}),
+  tbody tr:nth-child(#{$i}) {
+    animation: slideInUp 0.6s ease-out;
+    animation-delay: #{$i * 0.05}s;
+    animation-fill-mode: both;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Table Styles */
+table {
+  border-spacing: 0;
+
+  thead th {
+    border-bottom: 1px solid #f8fafc;
+    /* border-slate-50 equivalent */
+  }
+
+  tbody tr {
+    transition: all 0.2s ease;
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+/* Material Symbols Adjustment */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.text-primary {
+  color: #1c74bc;
+}
+
+.bg-primary {
+  background-color: #1c74bc;
+}
+
+.bg-primary-dark {
+  background-color: #155a92;
+}
+
+/* Table Scrollbar Customization */
+.overflow-x-auto {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+/* Responsive Table Adjustments */
+@media (max-width: 768px) {
+  .min-w-\[800px\] {
+    min-width: 700px;
+  }
+}

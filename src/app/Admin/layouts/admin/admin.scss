@@ -1,0 +1,209 @@
+/* Admin Layout Styles - Medflex Theme */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar-medflex {
+  background: #1c74bc;
+  /* Brand Primary */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+
+  .logo-container {
+    height: 80px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-item {
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      transform: translateX(4px);
+    }
+
+    &.active {
+      background-color: #FFFFFF;
+      color: #1c74bc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      font-weight: 600;
+
+      .material-symbols-outlined {
+        color: #1c74bc;
+      }
+    }
+  }
+
+  .custom-scrollbar {
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+}
+
+/* Top Navigation Styles */
+.navbar-medflex {
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  .search-input {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+
+    &:focus {
+      background: #FFFFFF;
+      border-color: #1c74bc;
+      box-shadow: 0 0 0 4px rgba(28, 116, 188, 0.1);
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* User Avatar Styles */
+.user-avatar {
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #1c74bc;
+    transform: scale(1.05);
+  }
+}
+
+/* Notification Dropdown Animation & Mobile Optimization */
+.notification-dropdown {
+  animation: slideDown 0.3s ease;
+  transform-origin: top right;
+
+  @media (max-width: 640px) {
+    position: fixed;
+    top: 70px !important;
+    left: 16px !important;
+    right: 16px !important;
+    width: calc(100% - 32px) !important;
+    transform: none !important;
+    max-height: 80vh;
+  }
+}
+
+/* Shortcut Hint Styling */
+kbd {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  letter-spacing: -0.5px;
+}
+
+/* Online Status Badge */
+.online-status {
+  box-shadow: 0 0 0 1px white;
+}
+
+/* Enhanced Badge Pulse */
+.notification-badge {
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar-medflex {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1001;
+
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Main Content Area */
+.main-content {
+  background: #F8FAFC;
+  min-height: 100vh;
+}
+
+/* Global Scrollbar (for content) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 4px;
+  border: 2px solid #F8FAFC;
+
+  &:hover {
+    background: #CBD5E1;
+  }
+}

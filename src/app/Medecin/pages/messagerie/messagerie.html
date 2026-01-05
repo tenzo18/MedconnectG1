@@ -1,0 +1,147 @@
+<div class="messaging-container">
+  <!-- Loading Main -->
+  <app-loading-spinner *ngIf="loading" message="Initialisation de la messagerie..." icon="chat"></app-loading-spinner>
+
+  <div class="messaging-wrapper animate-fadeIn" *ngIf="!loading">
+
+    <!-- Discussions List -->
+    <section class="discussions">
+      <div class="search-wrapper">
+        <div class="search-bar">
+          <span class="material-symbols-outlined text-slate-400">search</span>
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterConversations()" placeholder="Rechercher...">
+        </div>
+      </div>
+
+      <div class="conv-list">
+        <div *ngIf="filteredConversations.length === 0" class="p-8 text-center text-slate-400 text-sm">
+          Aucune conversation trouvée
+        </div>
+
+        <div *ngFor="let conv of filteredConversations; trackBy: trackByConversation" (click)="selectConversation(conv)"
+          class="discussion-item" [class.active]="activeConversation?.id === conv.id">
+
+          <div class="photo-wrapper">
+            <div class="photo overflow-hidden">
+              <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + conv.patientName" [alt]="conv.patientName"
+                class="w-full h-full object-cover" />
+            </div>
+            <div class="online-dot" *ngIf="isPatientOnline(conv.patientId)"></div>
+          </div>
+
+          <div class="desc-contact">
+            <p class="name">{{ conv.patientName }}</p>
+            <p class="last-msg">{{ conv.dernierMessage }}</p>
+          </div>
+
+          <div class="meta">
+            <p class="timer">{{ getTimeAgo(conv.dateCreation) }}</p>
+            <div class="badge" *ngIf="conv.nonLus > 0">
+              {{ conv.nonLus > 99 ? '99+' : conv.nonLus }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat Window -->
+    <section class="chat-window">
+      <div *ngIf="activeConversation; else noSelection" class="flex flex-col h-full">
+
+        <!-- Header -->
+        <div class="header-chat">
+          <div class="user-info">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full border border-slate-200 overflow-hidden">
+                <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + activeConversation.patientName"
+                  [alt]="activeConversation.patientName" class="w-full h-full object-cover" />
+              </div>
+            </div>
+            <p class="name">{{ activeConversation.patientName }}</p>
+          </div>
+
+          <div class="actions">
+            <i class="material-symbols-outlined"
+              (click)="voirDossierPatient(activeConversation.patientId)">folder_shared</i>
+            <i class="material-symbols-outlined" (click)="startTeleconsultation()">videocam</i>
+            <i class="material-symbols-outlined">more_horiz</i>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-chat" #chatWindow (scroll)="onScroll($event)">
+          <div *ngIf="loadingMessages" class="flex justify-center p-4">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+
+          <div *ngFor="let message of messages; trackBy: trackByMessage" class="message"
+            [class.response]="message.isMedecin">
+
+            <div class="photo overflow-hidden" *ngIf="!message.isMedecin">
+              <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + activeConversation.patientName"
+                [alt]="activeConversation.patientName" class="w-full h-full object-cover" />
+            </div>
+
+            <div class="photo overflow-hidden" *ngIf="message.isMedecin && currentUser">
+              <img
+                [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + (currentUser.firstName + ' ' + currentUser.lastName)"
+                [alt]="currentUser.firstName + ' ' + currentUser.lastName" class="w-full h-full object-cover" />
+            </div>
+
+            <div class="text-wrapper">
+              <p class="text">{{ message.contenu }}</p>
+              <span class="time">{{ formatMessageTime(message.createdAt) }}</span>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div class="flex items-center gap-2 p-2" *ngIf="isPatientTyping(activeConversation.patientId)">
+            <div class="flex gap-1 animate-pulse">
+              <div class="w-1.5 h-1.5 bg-slate-300 rounded-full"></div>
+              <div class="w-1.5 h-1.5 bg-slate-300 rounded-full"></div>
+              <div class="w-1.5 h-1.5 bg-slate-300 rounded-full"></div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-bold uppercase">{{ activeConversation.patientName.split(' ')[0]
+              }} écrit...</span>
+          </div>
+
+          <div *ngIf="messages.length === 0 && !loadingMessages"
+            class="h-full flex flex-col items-center justify-center text-slate-400">
+            <span class="material-symbols-outlined text-6xl mb-4">chat_bubble</span>
+            <p class="font-bold">Aucun message pour le moment</p>
+            <p class="text-sm">Envoyez votre premier message sécurisé.</p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-chat">
+          <i class="material-symbols-outlined icon-btn" (click)="toggleEmojiPicker()">sentiment_satisfied</i>
+          <textarea class="write-message" [(ngModel)]="newMessageContent" (keydown)="onKeyDown($event)"
+            (input)="onTyping(); resizeTextarea($event)" placeholder="Tapez votre message ici..." #messageInput
+            rows="1"></textarea>
+          <button class="send-btn" (click)="sendMessage()" [disabled]="!canSendMessage() || sending">
+            <span class="material-symbols-outlined">{{ sending ? 'sync' : 'send' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- No Selection -->
+      <ng-template #noSelection>
+        <div class="h-full flex flex-col items-center justify-center p-12 text-center bg-slate-50">
+          <div class="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-sm mb-8">
+            <span class="material-symbols-outlined text-8xl text-primary/20">chat_bubble</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800 mb-4">Messagerie Sécurisée</h2>
+          <p class="text-slate-500 max-w-sm">
+            Sélectionnez un patient dans la liste pour démarrer une conversation chiffrée.
+          </p>
+          <div
+            class="mt-8 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">verified_user</span>
+            <span class="text-[10px] font-bold uppercase">Conformité HDS & RGPD</span>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+  </div>
+</div>

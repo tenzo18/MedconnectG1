@@ -1,0 +1,106 @@
+// Styles Medflex Premium pour les demandes de connexion
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// Glassmorphism effects
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+// Custom Shadow System
+.shadow-indigo-100\/50 {
+  box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.15);
+}
+
+// Cards Design
+.group {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+// Specific Button Styles
+button {
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Truncate logic
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Selection styles
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+// Pulse animation for badges
+.animate-pulse {
+  animation: pulse-soft 2s infinite;
+}
+
+// Image effects
+img {
+  transition: transform 0.5s ease;
+
+  .group:hover & {
+    transform: scale(1.05);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .p-8 {
+    padding: 1.5rem;
+  }
+
+  .text-4xl {
+    font-size: 2rem;
+  }
+}

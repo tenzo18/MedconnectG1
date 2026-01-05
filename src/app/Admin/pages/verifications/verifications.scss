@@ -1,0 +1,289 @@
+/* Verifications Page Styles - Medflex Theme */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #F1F5F9;
+}
+
+/* Card hover effects */
+.doctor-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(79, 124, 255, 0.3);
+  }
+}
+
+/* Avatar with status indicator */
+.doctor-avatar {
+  position: relative;
+  
+  .status-indicator {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    
+    &.pending {
+      background: #F59E0B;
+      animation: pulse-warning 2s infinite;
+    }
+  }
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+/* Status badges */
+.status-badge {
+  &.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  
+  &.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  &.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+}
+
+/* Action buttons */
+.action-button {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.approve {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    
+    &:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+  }
+  
+  &.reject {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    
+    &:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+  }
+  
+  &.view {
+    background: #4F7CFF;
+    color: white;
+    
+    &:hover {
+      background: #3B5FE8;
+    }
+  }
+}
+
+/* Information grid */
+.info-grid {
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background: rgba(79, 124, 255, 0.05);
+    }
+    
+    .icon {
+      color: #6B7280;
+      margin-top: 2px;
+    }
+    
+    .content {
+      flex: 1;
+      min-width: 0;
+      
+      .label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+      }
+      
+      .value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+/* Modal styles */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty state */
+.empty-state {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Statistics counter */
+.stat-counter {
+  .number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #F59E0B;
+    line-height: 1;
+  }
+  
+  .label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 2px;
+  }
+}
+
+/* Card gradient header */
+.card-header-gradient {
+  background: linear-gradient(135deg, rgba(79, 124, 255, 0.1) 0%, rgba(79, 124, 255, 0.05) 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(79,124,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .doctor-card {
+    margin-bottom: 1rem;
+  }
+  
+  .info-grid {
+    .info-item {
+      padding: 8px;
+      
+      .content {
+        .label {
+          font-size: 0.7rem;
+        }
+        
+        .value {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus,
+a:focus {
+  outline: 2px solid #4F7CFF;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}

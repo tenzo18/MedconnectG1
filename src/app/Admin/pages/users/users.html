@@ -1,0 +1,274 @@
+<div class="flex h-screen bg-background-light overflow-hidden">
+  <!-- Main Content Area -->
+  <div class="flex-1 flex h-full">
+    <!-- Users List Section -->
+    <div class="flex-1 bg-white border-r border-gray-200 flex flex-col h-full">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-dark-gray">Gestion des Utilisateurs</h1>
+            <div class="flex items-center gap-4 mt-3">
+              <button class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                [class.text-white]="currentFilter === 'all'" [class.bg-primary]="currentFilter === 'all'"
+                [class.text-dark-gray/60]="currentFilter !== 'all'"
+                [class.hover:text-dark-gray]="currentFilter !== 'all'" (click)="setFilter('all')">
+                Tous
+              </button>
+              <button class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                [class.text-white]="currentFilter === 'Médecin'" [class.bg-primary]="currentFilter === 'Médecin'"
+                [class.text-dark-gray/60]="currentFilter !== 'Médecin'"
+                [class.hover:text-dark-gray]="currentFilter !== 'Médecin'" (click)="setFilter('Médecin')">
+                Médecins
+              </button>
+              <button class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                [class.text-white]="currentFilter === 'Patient'" [class.bg-primary]="currentFilter === 'Patient'"
+                [class.text-dark-gray/60]="currentFilter !== 'Patient'"
+                [class.hover:text-dark-gray]="currentFilter !== 'Patient'" (click)="setFilter('Patient')">
+                Patients
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 transform -translate-y-1/2 material-symbols-outlined text-dark-gray/40">
+            search
+          </span>
+          <input type="text" placeholder="Rechercher par nom ou email..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            (input)="onSearch($event)">
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <app-loading-spinner *ngIf="loading" message="Chargement de l'annuaire des utilisateurs..." icon="group"
+        containerClass="flex-1 flex flex-col items-center justify-center"></app-loading-spinner>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="flex-1 flex items-center justify-center px-6">
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg max-w-md">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-amber-600 mt-0.5">warning</span>
+            <div>
+              <h4 class="font-semibold text-sm mb-1">Problème technique détecté</h4>
+              <p class="text-sm">{{ error }}</p>
+              <p class="text-xs mt-2 text-amber-700">
+                Les utilisateurs affichés ci-dessous sont ceux disponibles. 
+                Contactez l'équipe technique pour résoudre ce problème.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table Container -->
+      <div *ngIf="!loading && !error" class="flex-1 flex flex-col">
+        <!-- Table Header -->
+        <div class="px-6 py-3 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+          <div class="grid grid-cols-12 gap-4 text-xs font-medium text-dark-gray/60 uppercase tracking-wider">
+            <div class="col-span-5">Name</div>
+            <div class="col-span-3">Role</div>
+            <div class="col-span-2">Status</div>
+            <div class="col-span-2">Actions</div>
+          </div>
+        </div>
+
+        <!-- Table Body - Fixed Height, No Scroll -->
+        <div class="h-80 flex flex-col justify-start">
+          <div class="divide-y divide-gray-100">
+            <div *ngFor="let user of paginatedUsers; trackBy: trackByUserId"
+              class="px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+              [class.bg-primary/5]="selectedUser?.id === user.id" [class.border-l-4]="selectedUser?.id === user.id"
+              [class.border-primary]="selectedUser?.id === user.id" (click)="selectUser(user)">
+
+              <div class="grid grid-cols-12 gap-4 items-center">
+                <!-- Name with Avatar -->
+                <div class="col-span-5 flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-gray-100">
+                    <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + user.name" [alt]="user.name"
+                      class="w-full h-full object-cover">
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <span class="font-medium text-dark-gray block truncate">{{ user.name }}</span>
+                    <div class="text-xs text-dark-gray/60 truncate">{{ user.email }}</div>
+                  </div>
+                </div>
+
+                <!-- Role -->
+                <div class="col-span-3 text-sm text-dark-gray/60">
+                  {{ user.role }}
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2 flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full" 
+                    [class.bg-success]="user.status === 'Actif'"
+                    [class.bg-yellow-500]="user.status === 'En attente'"
+                    [class.bg-red-500]="user.status === 'Bloqué' || user.status === 'Rejeté'"
+                    [class.bg-gray-400]="user.status === 'Inactif'">
+                  </div>
+                  <span class="text-sm text-dark-gray/60">{{ user.status }}</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-span-2 flex items-center gap-2">
+                  <button *ngIf="user.status === 'Actif' || user.status === 'Bloqué'"
+                    (click)="toggleStatus(user.id); $event.stopPropagation()"
+                    class="p-1 rounded hover:bg-gray-100 transition-colors"
+                    [title]="user.status === 'Actif' ? 'Bloquer le compte' : 'Débloquer le compte'">
+                    <span class="material-symbols-outlined text-sm" 
+                      [class.text-success]="user.status === 'Bloqué'"
+                      [class.text-red-500]="user.status === 'Actif'">
+                      {{ user.status === 'Actif' ? 'block' : 'check_circle' }}
+                    </span>
+                  </button>
+                  <span *ngIf="user.status !== 'Actif' && user.status !== 'Bloqué'" 
+                    class="text-xs text-gray-400 px-2">
+                    {{ user.status === 'En attente' ? 'En cours de validation' : 'Non modifiable' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="filteredUsers.length === 0" class="flex-1 flex items-center justify-center">
+            <div class="text-center">
+              <span class="material-symbols-outlined text-4xl text-dark-gray/30">search_off</span>
+              <p class="text-dark-gray/60 mt-2">Aucun utilisateur trouvé</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination Controls - Only show if more than 5 users -->
+        <div *ngIf="filteredUsers.length > 5" class="px-6 py-4 border-t border-gray-200 bg-white flex-shrink-0">
+          <div class="flex items-center justify-between">
+            <!-- Results Info -->
+            <div class="text-sm text-dark-gray/60">
+              Affichage de {{ getStartIndex() }} à {{ getEndIndex() }} sur {{ totalItems }} utilisateurs
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="flex items-center gap-2">
+              <!-- Previous Button -->
+              <button (click)="previousPage()" [disabled]="currentPage === 1"
+                class="px-3 py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+              </button>
+
+              <!-- Page Numbers -->
+              <div class="flex items-center gap-1">
+                <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+                  class="px-3 py-1 text-sm rounded-lg transition-colors" [class.bg-primary]="page === currentPage"
+                  [class.text-white]="page === currentPage" [class.text-dark-gray/60]="page !== currentPage"
+                  [class.hover:bg-gray-100]="page !== currentPage">
+                  {{ page }}
+                </button>
+              </div>
+
+              <!-- Next Button -->
+              <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                class="px-3 py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Details Panel -->
+    <div class="w-80 bg-white border-l border-gray-200 flex flex-col h-full" *ngIf="selectedUser">
+      <div class="p-4">
+        <!-- User Profile -->
+        <div class="text-center mb-3">
+          <div
+            class="w-14 h-14 rounded-full overflow-hidden mx-auto mb-2 border-4 border-gray-100 bg-slate-50 flex items-center justify-center">
+            <img [src]="'https://api.dicebear.com/7.x/initials/svg?seed=' + selectedUser.name" [alt]="selectedUser.name"
+              class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-base font-semibold text-dark-gray">{{ selectedUser.name }}</h3>
+          <p class="text-xs text-dark-gray/60">{{ selectedUser.role }}</p>
+        </div>
+
+        <!-- À propos Section -->
+        <div class="mb-3">
+          <h4 class="text-sm font-medium text-dark-gray mb-1">À propos</h4>
+          <p class="text-xs text-dark-gray/60 leading-tight line-clamp-2">
+            {{ getAboutText(selectedUser) }}
+          </p>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="space-y-3 mb-4">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-dark-gray">ID</span>
+            <span class="text-sm text-dark-gray/60">{{ selectedUser.id.substring(0, 8) }}...</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-dark-gray">Rôle</span>
+            <span class="text-sm text-dark-gray/60">{{ selectedUser.role }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-dark-gray">Email</span>
+            <span class="text-sm text-dark-gray/60 truncate ml-2 max-w-32">{{ selectedUser.email }}</span>
+          </div>
+
+          <div class="flex justify-between items-center" *ngIf="selectedUser.dateCreation">
+            <span class="text-sm font-medium text-dark-gray">Inscription</span>
+            <span class="text-sm text-dark-gray/60">{{ selectedUser.dateCreation | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- Status Toggle -->
+        <div class="mb-4 pt-3 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-dark-gray">Statut</span>
+            <button *ngIf="selectedUser.status === 'Actif' || selectedUser.status === 'Bloqué'"
+              (click)="toggleStatus(selectedUser.id)"
+              class="px-3 py-1 text-sm font-medium rounded-full transition-colors"
+              [class.bg-success/10]="selectedUser.status === 'Actif'"
+              [class.text-success]="selectedUser.status === 'Actif'"
+              [class.bg-red-100]="selectedUser.status === 'Bloqué'"
+              [class.text-red-600]="selectedUser.status === 'Bloqué'">
+              {{ selectedUser.status }}
+            </button>
+            <span *ngIf="selectedUser.status !== 'Actif' && selectedUser.status !== 'Bloqué'"
+              class="px-3 py-1 text-sm font-medium rounded-full"
+              [class.bg-yellow-100]="selectedUser.status === 'En attente'"
+              [class.text-yellow-700]="selectedUser.status === 'En attente'"
+              [class.bg-gray-100]="selectedUser.status === 'Rejeté' || selectedUser.status === 'Inactif'"
+              [class.text-gray-600]="selectedUser.status === 'Rejeté' || selectedUser.status === 'Inactif'">
+              {{ selectedUser.status }}
+            </span>
+          </div>
+        </div>
+
+        <!-- View Details Button - Right after status -->
+        <div>
+          <a [routerLink]="['../user-details', selectedUser.id]"
+            class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            Voir les détails
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty Details Panel -->
+    <div class="w-80 bg-white border-l border-gray-200 flex items-center justify-center h-full" *ngIf="!selectedUser">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-4xl text-dark-gray/30">person</span>
+        <p class="text-dark-gray/60 mt-2">Sélectionnez un utilisateur</p>
+        <p class="text-sm text-dark-gray/40">pour voir les détails</p>
+      </div>
+    </div>
+  </div>
+</div>

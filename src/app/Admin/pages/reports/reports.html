@@ -1,0 +1,342 @@
+<div class="max-w-7xl mx-auto space-y-8 p-6">
+  <!-- Header Section -->
+  <div class="flex flex-wrap justify-between gap-4 items-center">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-3">
+        <img src="/med-connect.png" alt="Med-Connect" class="h-10 w-auto">
+        <div>
+          <h1 class="text-dark-gray text-3xl font-bold leading-tight tracking-tight">
+            Rapports Analytiques
+          </h1>
+          <p class="text-dark-gray/60 text-base font-normal leading-normal">
+            Analyse approfondie de l'écosystème Med-Connect
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="refreshStats()"
+      class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
+      <span class="material-symbols-outlined text-[18px]">refresh</span>
+      Actualiser les données
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="loading" message="Génération du rapport détaillé..."
+    icon="analytics"></app-loading-spinner>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading"
+    class="flex items-center gap-4 bg-rose-50 border border-rose-100 p-4 rounded-2xl animate-in fade-in slide-in-from-top-2">
+    <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+      <span class="material-symbols-outlined">error</span>
+    </div>
+    <p class="text-rose-700 font-medium">{{ error }}</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && stats" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+    <!-- Top Section: Analytical Summary & General Stats (Mirroring Dashboard) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Report Summary Card -->
+      <div
+        class="lg:col-span-4 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-2xl">monitoring</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-800">Résumé Intelligence</h2>
+            <p class="text-slate-500 text-sm mt-1">La plateforme a connu une croissance de <span
+                class="text-emerald-500 font-bold">{{ getGrowthRate() }}%</span> d'activité ces 7 derniers jours.</p>
+          </div>
+        </div>
+
+        <div class="mt-8 flex items-end justify-between">
+          <div>
+            <p class="text-4xl font-black text-slate-900 tracking-tighter">{{ stats.totalUsers }}</p>
+            <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Comptes actifs</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-bold {{ getPlatformHealth().class }} italic">Plateforme {{ getPlatformHealth().status
+              }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Stats Grid -->
+      <div
+        class="lg:col-span-8 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Recapitulatif Système</h2>
+            <p class="text-slate-500 text-sm mt-1">Vue d'ensemble de la base de données</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <span class="material-symbols-outlined">groups</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-black uppercase truncate">Total</p>
+              <p class="text-xl font-black text-slate-800">{{ formatNumber(stats.totalUsers) }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <span class="material-symbols-outlined">stethoscope</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-black uppercase truncate">Médecins</p>
+              <p class="text-xl font-black text-slate-800">{{ stats.totalDoctors }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+              <span class="material-symbols-outlined">personal_injury</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-black uppercase truncate">Patients</p>
+              <p class="text-xl font-black text-slate-800">{{ stats.totalPatients }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
+              <span class="material-symbols-outlined">admin_panel_settings</span>
+            </div>
+            <div>
+              <p class="text-slate-400 text-[10px] font-black uppercase truncate">Admins</p>
+              <p class="text-xl font-black text-slate-800">{{ stats.totalAdmins }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytical Detailed Cards Section (Dashboard Style with more details) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Population Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-400 text-[11px] font-black uppercase tracking-widest">Répartition Démographique</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">Patients : {{ formatNumber(stats.totalPatients) }}</p>
+          <p class="text-slate-400 text-xs mt-1">Équilibre de la base utilisateur.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
+                <span class="material-symbols-outlined text-lg">ads_click</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-xs font-black uppercase">Taux d'Engagement</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <div class="w-20 h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-500" [style.width.%]="getEngagementRate()"></div>
+                  </div>
+                  <span class="text-[9px] font-bold text-slate-500">{{ getEngagementRate() }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined text-lg">trending_up</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-xs font-black uppercase">Fidélité</p>
+                <p class="text-slate-400 text-[10px]">Utilisateurs récurrents</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-slate-800 text-xs font-black">{{ getPercentage(stats.activeDoctors, stats.totalUsers) }}%
+              </p>
+              <div class="w-6 h-1 bg-emerald-500 rounded-full mt-1 ml-auto"></div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-indigo-50/30 rounded-2xl mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-indigo-500">account_circle</span>
+              <span class="text-xs font-bold text-indigo-900">Moy. Dossiers / Patient</span>
+            </div>
+            <span class="text-sm font-black text-indigo-900">{{ getAveragePerPatient() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Recruitment Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-400 text-[11px] font-black uppercase tracking-widest">Pipeline Médical</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">Vérification : {{ stats.totalDoctors }}</p>
+          <p class="text-slate-400 text-xs mt-1">Suivi du recrutement et validation.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined text-lg">verified_user</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-xs font-black uppercase">Approuvés</p>
+                <p class="text-slate-400 text-[10px]">{{ getPercentage(stats.activeDoctors, stats.totalDoctors) }}% du
+                  total</p>
+              </div>
+            </div>
+            <p class="text-slate-800 text-xs font-black">{{ stats.activeDoctors }}</p>
+          </div>
+
+          <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+                <span class="material-symbols-outlined text-lg">pending</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-xs font-black uppercase">En attente</p>
+                <p class="text-slate-400 text-[10px]">Action prioritaire</p>
+              </div>
+            </div>
+            <p class="text-slate-800 text-xs font-black">{{ stats.pendingDoctors }}</p>
+          </div>
+
+          <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+                <span class="material-symbols-outlined text-lg">cancel</span>
+              </div>
+              <div>
+                <p class="text-slate-700 text-xs font-black uppercase">Refusés</p>
+                <p class="text-slate-400 text-[10px]">Profils non conformes</p>
+              </div>
+            </div>
+            <p class="text-slate-800 text-xs font-black">{{ stats.totalDoctors - stats.activeDoctors -
+              stats.pendingDoctors }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Flow Card -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+        <div class="mb-6">
+          <h3 class="text-slate-400 text-[11px] font-black uppercase tracking-widest">Économie & Flux</h3>
+          <p class="text-2xl font-black text-slate-800 mt-2">Services : {{ formatNumber(stats.totalDossiers +
+            stats.totalRendezVous) }}</p>
+          <p class="text-slate-400 text-xs mt-1">Activité transactionnelle et médicale.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="p-3 bg-slate-50 rounded-xl">
+            <p class="text-[9px] font-black text-slate-400 uppercase">Consultations</p>
+            <p class="text-lg font-black text-slate-800">{{ stats.totalRendezVous }}</p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl">
+            <p class="text-[9px] font-black text-slate-400 uppercase">Messages</p>
+            <p class="text-lg font-black text-slate-800">{{ formatNumber(stats.totalMessages) }}</p>
+          </div>
+        </div>
+
+        <div class="space-y-4" *ngIf="stats.systemMetrics">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-500">
+              <span>CPU</span>
+              <span class="text-indigo-600">{{ stats.systemMetrics.cpuUsage }}%</span>
+            </div>
+            <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-indigo-500" [style.width.%]="stats.systemMetrics.cpuUsage"></div>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-500">
+              <span>RAM</span>
+              <span class="text-emerald-600">{{ stats.systemMetrics.memoryUsage }}%</span>
+            </div>
+            <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-500" [style.width.%]="stats.systemMetrics.memoryUsage"></div>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 font-medium">Capacité serveur optimale</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section (Professional ApexCharts) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Evolution Chart -->
+      <div class="lg:col-span-2">
+        <app-chart-card title="Évolution des Inscriptions" subtitle="Volume quotidien des 7 derniers jours">
+          <div class="min-h-[300px] mt-6 flex items-center justify-center">
+            <apx-chart *ngIf="registrationChartOptions" [series]="registrationChartOptions.series"
+              [chart]="registrationChartOptions.chart" [xaxis]="registrationChartOptions.xaxis"
+              [stroke]="registrationChartOptions.stroke" [fill]="registrationChartOptions.fill"
+              [colors]="registrationChartOptions.colors" [tooltip]="registrationChartOptions.tooltip"
+              [yaxis]="registrationChartOptions.yaxis" [dataLabels]="registrationChartOptions.dataLabels"
+              class="w-full">
+            </apx-chart>
+          </div>
+        </app-chart-card>
+      </div>
+
+      <!-- Specialities Breakdown -->
+      <div class="lg:col-span-1">
+        <app-chart-card title="Spécialités" subtitle="Répartition du corps médical">
+          <div class="min-h-[300px] mt-6 flex items-center justify-center">
+            <apx-chart *ngIf="specialtyChartOptions" [series]="specialtyChartOptions.series"
+              [chart]="specialtyChartOptions.chart" [xaxis]="specialtyChartOptions.xaxis"
+              [plotOptions]="specialtyChartOptions.plotOptions" [colors]="specialtyChartOptions.colors"
+              [dataLabels]="specialtyChartOptions.dataLabels" [tooltip]="specialtyChartOptions.tooltip" class="w-full">
+            </apx-chart>
+          </div>
+        </app-chart-card>
+      </div>
+    </div>
+
+    <!-- Footnote: Platform Health (Light Style) -->
+    <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+      <!-- Abstract background element -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+
+      <div class="relative flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-6">
+          <div
+            class="w-16 h-16 rounded-[1.5rem] bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined text-4xl">verified</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-slate-800">État Global du Système : <span
+                class="text-emerald-600">OPTIMAL</span></h3>
+            <p class="text-slate-500 text-sm mt-1 font-medium">Toutes les fonctions vitales de Med-Connect sont
+              opérationnelles.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="px-6 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-center"
+            *ngIf="stats.systemMetrics">
+            <p class="text-[10px] font-black text-slate-400 uppercase">Uptime</p>
+            <p class="text-lg font-black text-slate-800">{{ stats.systemMetrics.uptime }}</p>
+          </div>
+          <div class="px-6 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-center"
+            *ngIf="stats.systemMetrics">
+            <p class="text-[10px] font-black text-slate-400 uppercase">API Lag</p>
+            <p class="text-lg font-black text-slate-800">{{ stats.systemMetrics.apiLatency }}ms</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,302 @@
+/* Reports Page Styles - Medflex Theme */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #F1F5F9;
+}
+
+/* Statistics cards */
+.stat-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Progress bars */
+.progress-bar {
+  transition: width 1s ease-in-out;
+  animation: progressFill 1s ease-in-out;
+}
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+}
+
+/* Circular progress for donut chart */
+.circular-progress {
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+/* Chart containers */
+.chart-container {
+  position: relative;
+  
+  &:hover {
+    .chart-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.chart-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+/* Bar chart styles */
+.bar-chart {
+  .bar {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      opacity: 0.8;
+      transform: scaleY(1.05);
+    }
+  }
+}
+
+/* Weekly data chart */
+.weekly-chart {
+  .chart-bar {
+    background: linear-gradient(to top, #4F7CFF, #6B8FFF);
+    transition: all 0.5s ease;
+    border-radius: 4px 4px 0 0;
+    
+    &:hover {
+      background: linear-gradient(to top, #3B5FE8, #5A7EFF);
+      transform: scaleY(1.1);
+    }
+  }
+  
+  .chart-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 8px;
+  }
+  
+  .chart-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+/* Icon containers */
+.icon-container {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  &.primary {
+    background: rgba(79, 124, 255, 0.1);
+    color: #4F7CFF;
+  }
+  
+  &.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+  }
+  
+  &.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+  }
+  
+  &.info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+  }
+}
+
+/* Growth indicators */
+.growth-indicator {
+  &.positive {
+    color: #10B981;
+    
+    &::before {
+      content: '↗';
+      margin-right: 2px;
+    }
+  }
+  
+  &.negative {
+    color: #EF4444;
+    
+    &::before {
+      content: '↘';
+      margin-right: 2px;
+    }
+  }
+  
+  &.neutral {
+    color: #6B7280;
+    
+    &::before {
+      content: '→';
+      margin-right: 2px;
+    }
+  }
+}
+
+/* Loading animations */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .stat-card {
+    .stat-number {
+      font-size: 1.5rem;
+    }
+    
+    .icon-container {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  
+  .weekly-chart {
+    .chart-bar {
+      min-height: 20px;
+    }
+  }
+}
+
+/* Donut chart legend */
+.chart-legend {
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .legend-label {
+      font-size: 0.875rem;
+      color: #374151;
+    }
+    
+    .legend-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-left: auto;
+    }
+  }
+}
+
+/* Action buttons */
+.action-button {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Time period selector */
+.time-selector {
+  .time-button {
+    transition: all 0.2s ease;
+    
+    &.active {
+      background: #4F7CFF;
+      color: white;
+    }
+    
+    &:not(.active):hover {
+      background: rgba(79, 124, 255, 0.1);
+      color: #4F7CFF;
+    }
+  }
+}
+
+/* Status indicators */
+.status-indicator {
+  &.excellent {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  &.good {
+    background: rgba(79, 124, 255, 0.1);
+    color: #4F7CFF;
+    border: 1px solid rgba(79, 124, 255, 0.2);
+  }
+  
+  &.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  
+  &.danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+.interactive:focus {
+  outline: 2px solid #4F7CFF;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .action-button,
+  .time-selector {
+    display: none;
+  }
+  
+  .stat-card {
+    break-inside: avoid;
+  }
+}
