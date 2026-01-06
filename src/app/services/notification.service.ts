@@ -29,6 +29,10 @@ export class NotificationService {
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
 
+  // Subject pour forcer le rafraîchissement des stats globales (badges, compteurs)
+  private refreshRequestedSubject = new BehaviorSubject<void>(undefined);
+  public refreshRequested$ = this.refreshRequestedSubject.asObservable();
+
   private refreshSubscription: any = null;
 
   constructor() {
@@ -47,7 +51,7 @@ export class NotificationService {
 
     // Charger les notifications immédiatement
     this.loadNotifications();
-    
+
     // Rafraîchir toutes les 30 secondes
     this.refreshSubscription = interval(30000).pipe(
       switchMap(() => this.getNotifications())
@@ -178,5 +182,12 @@ export class NotificationService {
    */
   getCurrentUnreadCount(): number {
     return this.unreadCountSubject.value;
+  }
+
+  /**
+   * Demander le rafraîchissement des statistiques globales
+   */
+  requestRefresh(): void {
+    this.refreshRequestedSubject.next();
   }
 }

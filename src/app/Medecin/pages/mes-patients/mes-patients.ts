@@ -348,18 +348,26 @@ export class MesPatients implements OnInit {
 
     this.medecinApi.getDossiersPatient(patient.idPatient).subscribe({
       next: (response) => {
-        console.log('✅ Dossiers chargés:', response);
+        console.log('✅ Réponse API complète:', response);
         
         if (response.success && response.data) {
-          // Gérer les deux formats possibles de réponse
+          console.log('📊 Structure de response.data:', response.data);
+          
+          // Le backend retourne { dossiers: [...], total: ... }
           if (Array.isArray(response.data)) {
+            console.log('✅ Format 1: Array direct');
             this.selectedPatientDossiers = response.data;
-          } else if (response.data.dossiers) {
+          } else if (response.data.dossiers && Array.isArray(response.data.dossiers)) {
+            console.log('✅ Format 2: Objet avec propriété dossiers');
             this.selectedPatientDossiers = response.data.dossiers;
           } else {
+            console.warn('⚠️ Format inconnu, initialisation vide');
             this.selectedPatientDossiers = [];
           }
+          
+          console.log('📋 Dossiers finaux:', this.selectedPatientDossiers);
         } else {
+          console.warn('⚠️ Pas de données dans la réponse');
           this.selectedPatientDossiers = [];
         }
         
@@ -367,6 +375,8 @@ export class MesPatients implements OnInit {
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des dossiers:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Message:', error.message);
         this.selectedPatientDossiers = [];
         this.loadingDossiers = false;
       }
@@ -387,34 +397,33 @@ export class MesPatients implements OnInit {
    */
   voirDetailsDossier(dossier: any): void {
     console.log('📋 Voir détails du dossier:', dossier);
+    console.log('📋 ID du dossier:', dossier.id);
     
-    if (!this.selectedPatientForDossiers) return;
+    if (!this.selectedPatientForDossiers) {
+      console.error('❌ Aucun patient sélectionné');
+      return;
+    }
 
-    this.medecinApi.getDossierComplet(dossier.id).subscribe({
-      next: (response) => {
-        console.log('✅ Dossier complet chargé:', response);
-        
-        if (response.success && response.data) {
-          // Ouvrir une modal ou naviguer vers une page de détails
-          // Pour l'instant, afficher les détails dans la console
-          console.log('📋 Détails du dossier:');
-          console.log('   - Titre:', response.data.titre);
-          console.log('   - Type:', response.data.type);
-          console.log('   - Statut:', response.data.statut);
-          console.log('   - Documents:', response.data.documents?.length || 0);
-          console.log('   - Ordonnances:', response.data.ordonnances?.length || 0);
-          console.log('   - Allergies:', response.data.allergies?.length || 0);
-          console.log('   - Commentaires:', response.data.commentaires?.length || 0);
-          console.log('   - Accès:', response.data.acces?.length || 0);
-          
-          // TODO: Ouvrir une modal avec les détails complets du dossier
-          alert(`Dossier: ${response.data.titre}\n\nDocuments: ${response.data.documents?.length || 0}\nOrdonnances: ${response.data.ordonnances?.length || 0}\nAllergies: ${response.data.allergies?.length || 0}`);
-        }
+    if (!dossier.id) {
+      console.error('❌ ID du dossier manquant');
+      return;
+    }
+
+    // Fermer la modal et naviguer
+    this.showDossiersModal = false;
+    this.selectedPatientForDossiers = null;
+    this.selectedPatientDossiers = [];
+    
+    console.log('🔄 Navigation vers /medecin/dossier-detail/' + dossier.id);
+    
+    // Naviguer vers la page de détails du dossier
+    this.router.navigate(['/medecin/dossier-detail', dossier.id]).then(
+      (success) => {
+        console.log('✅ Navigation réussie:', success);
       },
-      error: (error) => {
-        console.error('❌ Erreur lors du chargement du dossier complet:', error);
-        alert('Erreur lors du chargement du dossier');
+      (error) => {
+        console.error('❌ Erreur de navigation:', error);
       }
-    });
+    );
   }
 }

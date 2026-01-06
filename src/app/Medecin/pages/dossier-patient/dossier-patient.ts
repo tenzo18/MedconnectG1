@@ -37,7 +37,7 @@ export class DossierPatient implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private medecinApi = inject(MedecinApiService);
-  
+
   patientId: string | null = null;
   patient: PatientData | undefined;
   dossiers: any[] = [];
@@ -61,18 +61,18 @@ export class DossierPatient implements OnInit {
 
   loadPatientData(patientId: string): void {
     this.loading = true;
-    
+
     // Charger les dossiers du patient
     this.medecinApi.getDossiersPatient(patientId).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.dossiers = response.data;
-          
+
           // Si au moins un dossier existe, charger ses détails
           if (this.dossiers.length > 0) {
             this.loadDossierDetails(this.dossiers[0].id);
           }
-          
+
           // Extraire les infos patient du premier dossier
           if (this.dossiers[0]?.patient) {
             const p = this.dossiers[0].patient;
@@ -107,7 +107,7 @@ export class DossierPatient implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           const dossier = response.data;
-          
+
           // Documents
           this.documentsPatients = (dossier.documents || []).map((doc: any) => ({
             id: doc.id,
@@ -117,7 +117,7 @@ export class DossierPatient implements OnInit {
             fichierURL: doc.cheminFichier,
             niveauPartage: 'Complet'
           }));
-          
+
           // Documents médecin (ordonnances et commentaires)
           this.documentsMedecin = [
             ...(dossier.ordonnances || []).map((ord: any) => ({
@@ -137,13 +137,13 @@ export class DossierPatient implements OnInit {
               niveauPartage: 'Complet'
             }))
           ];
-          
+
           // Ordonnances
           this.ordonnances = dossier.ordonnances || [];
-          
+
           // Allergies
           this.allergies = dossier.allergies || [];
-          
+
           // Commentaires
           this.commentaires = dossier.commentaires || [];
         }
@@ -158,11 +158,9 @@ export class DossierPatient implements OnInit {
     this.activeTab = tab;
   }
 
-  openDocument(url: string, titre: string): void {
-    if (url && url !== '#') {
-      window.open(url, '_blank');
-    } else {
-      alert(`Document : ${titre}`);
+  openDocument(docId: string): void {
+    if (docId) {
+      this.router.navigate(['/medecin/dossier-detail', docId]);
     }
   }
 

@@ -16,6 +16,7 @@ import { DashboardDocteur } from './Medecin/pages/dashboard/dashboard';
 import { DemandesConnexion } from './Medecin/pages/demandes-connexion/demandes-connexion';
 import { MesPatients } from './Medecin/pages/mes-patients/mes-patients';
 import { DossierPatient } from './Medecin/pages/dossier-patient/dossier-patient';
+import { DossierDetailComponent } from './Medecin/pages/dossier-detail/dossier-detail';
 import { AjoutDiagnostic } from './Medecin/pages/ajout-diagnostic/ajout-diagnostic';
 import { CreationPrescription } from './Medecin/pages/creation-prescription/creation-prescription';
 import { Messagerie } from './Medecin/pages/messagerie/messagerie';
@@ -63,6 +64,7 @@ export const routes: Routes = [
       { path: 'demandes-connexion', component: DemandesConnexion },
       { path: 'mes-patients', component: MesPatients },
       { path: 'dossier-patient/:id', component: DossierPatient },
+      { path: 'dossier-detail/:dossierId', component: DossierDetailComponent },
       { path: 'ajout-diagnostic/:patientId', component: AjoutDiagnostic },
       { path: 'creation-prescription/:patientId', component: CreationPrescription },
       { path: 'messagerie', component: Messagerie },

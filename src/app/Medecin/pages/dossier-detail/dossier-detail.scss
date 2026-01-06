@@ -1,0 +1,35 @@
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Styles spécifiques
+:host {
+  display: block;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .lg\:grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}

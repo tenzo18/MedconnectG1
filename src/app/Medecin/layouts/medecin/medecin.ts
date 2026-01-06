@@ -7,6 +7,7 @@ import { AuthService, User } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification.service';
 import { MedecinApiService } from '../../services/medecin-api.service';
 import { AlertService } from '../../../services/alert.service';
+import { SocketChatService } from '../../../services/socket-chat.service';
 
 @Component({
   selector: 'app-medecin-layout',
@@ -20,6 +21,7 @@ export class MedecinLayout implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private medecinApiService = inject(MedecinApiService);
   private alertService = inject(AlertService);
+  private socketService = inject(SocketChatService);
 
   currentUser: User | null = null;
   searchQuery = '';
@@ -36,6 +38,7 @@ export class MedecinLayout implements OnInit, OnDestroy {
   private userSubscription?: Subscription;
   private statsSubscription?: Subscription;
   private refreshInterval?: Subscription;
+  private socketSubscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     // S'abonner aux changements de l'utilisateur
@@ -58,12 +61,52 @@ export class MedecinLayout implements OnInit, OnDestroy {
     this.refreshInterval = interval(30000).subscribe(() => {
       this.loadStats();
     });
+
+    // S'abonner aux demandes de rafraîchissement manuel
+    this.socketSubscriptions.push(
+      this.notificationService.refreshRequested$.subscribe(() => {
+        console.log('🔄 Rafraîchissement des stats demandé');
+        this.loadStats();
+      })
+    );
+
+    // Écouter les événements temps réel
+    this.setupRealtimeListeners();
   }
 
   ngOnDestroy(): void {
     this.userSubscription?.unsubscribe();
     this.statsSubscription?.unsubscribe();
     this.refreshInterval?.unsubscribe();
+    this.socketSubscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private setupRealtimeListeners(): void {
+    // S'assurer que le socket est connecté
+    this.socketService.connect();
+
+    // Nouveaux messages
+    this.socketSubscriptions.push(
+      this.socketService.messageReceived$.subscribe(() => {
+        // Incrémenter si pas déjà sur la page messagerie
+        if (!this.router.url.includes('messagerie')) {
+          this.unreadMessagesCount++;
+        }
+      })
+    );
+
+    // Nouvelles notifications/demandes
+    if (this.socketService['socket']) {
+      this.socketService['socket'].on('notification:new', () => {
+        this.loadStats();
+      });
+
+      this.socketService['socket'].on('connection_request:new', () => {
+        console.log('🔔 Temps réel: Nouvelle invitation !');
+        this.pendingRequestsCount++;
+        this.loadStats();
+      });
+    }
   }
 
   private initializeTheme(): void {
@@ -99,6 +142,7 @@ export class MedecinLayout implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.pendingRequestsCount = response.data.length;
+          console.log('🔔 Sidebar: Invitations en attente:', this.pendingRequestsCount);
         }
       },
       error: (err: any) => console.error('Erreur chargement demandes:', err)

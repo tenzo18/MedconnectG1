@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MedecinApiService } from '../../services/medecin-api.service';
+import { NotificationService } from '../../../services/notification.service';
+import { Subscription } from 'rxjs';
 import {
   ChartCardComponent,
   LoadingSpinnerComponent
@@ -70,6 +72,8 @@ interface DoctorDashboardStats {
 })
 export class DashboardDocteur implements OnInit {
   private medecinApi = inject(MedecinApiService);
+  private notificationService = inject(NotificationService);
+  private refreshSubscription?: Subscription;
 
   // ApexCharts Configurations
   public activityChartOptions: Partial<ChartOptions> | any;
@@ -94,6 +98,15 @@ export class DashboardDocteur implements OnInit {
     this.loadDoctorName();
     this.loadStats();
     this.initChartOptions();
+
+    // S'abonner aux demandes de rafraîchissement
+    this.refreshSubscription = this.notificationService.refreshRequested$.subscribe(() => {
+      this.loadStats();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
   }
 
   private initChartOptions(): void {
@@ -162,6 +175,7 @@ export class DashboardDocteur implements OnInit {
         if (response.success && response.data) {
           // Calculer les statistiques basées sur les données des patients connectés
           const patientsData = response.data;
+          console.log('📊 Dashboard loading patientsData:', patientsData.length, patientsData);
 
           // Dédupliquer les patients par ID (même logique que mes-patients)
           const patientsMap = new Map();
@@ -265,7 +279,9 @@ export class DashboardDocteur implements OnInit {
     this.medecinApi.getMessagesNonLus().subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.stats.messagesNonLus = response.data.count || 0;
+          // Si response.data est un tableau, prendre sa longueur
+          const count = Array.isArray(response.data) ? response.data.length : (response.data.count || 0);
+          this.stats.messagesNonLus = count;
         }
       },
       error: (error) => console.error('Erreur messages:', error)

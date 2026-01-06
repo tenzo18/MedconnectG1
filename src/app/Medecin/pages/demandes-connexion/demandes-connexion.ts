@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MedecinApiService } from '../../services/medecin-api.service';
 import { AlertService } from '../../../services/alert.service';
+import { NotificationService } from '../../../services/notification.service';
 import Swal from 'sweetalert2';
 
 interface DemandeConnexion {
@@ -28,6 +29,7 @@ import { LoadingSpinnerComponent } from '../../../components/loading-spinner/loa
 export class DemandesConnexion implements OnInit {
   private medecinApi = inject(MedecinApiService);
   private alertService = inject(AlertService);
+  private notificationService = inject(NotificationService);
 
   demandesEnAttente: DemandeConnexion[] = [];
   filteredDemandes: DemandeConnexion[] = [];
@@ -157,6 +159,8 @@ export class DemandesConnexion implements OnInit {
 
         // Notification de succès
         this.showSuccessMessage(`Demande de ${demande.nomPatient} acceptée avec succès !`);
+        this.notificationService.getUnreadCount().subscribe();
+        this.notificationService.requestRefresh();
       },
       error: (error) => {
         console.error('Erreur lors de l\'acceptation:', error);
@@ -211,6 +215,8 @@ export class DemandesConnexion implements OnInit {
 
         // Notification
         this.showSuccessMessage(`Demande de ${demande.nomPatient} refusée.`);
+        this.notificationService.getUnreadCount().subscribe();
+        this.notificationService.requestRefresh();
       },
       error: (error) => {
         console.error('Erreur lors du refus:', error);
@@ -247,6 +253,8 @@ export class DemandesConnexion implements OnInit {
       this.processing = false;
 
       this.showSuccessMessage(`${count} demandes acceptées avec succès !`);
+      this.notificationService.getUnreadCount().subscribe();
+      this.notificationService.requestRefresh();
     }).catch((error) => {
       console.error('Erreur lors de l\'acceptation en masse:', error);
       this.showErrorMessage('Erreur lors de l\'acceptation des demandes');
