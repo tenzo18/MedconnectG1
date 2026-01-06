@@ -205,11 +205,11 @@
                     title="Planifier RDV">
                     <span class="material-symbols-outlined text-xl">event</span>
                   </button>
-                  <a [routerLink]="['/medecin/dossier-patient', patient.idPatient]"
-                    class="ml-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-dark transition-all">
-                    <span class="material-symbols-outlined text-sm">folder_open</span>
-                    Dossier
-                  </a>
+                  <button type="button" (click)="voirDossiersPatient(patient)"
+                    class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
+                    title="Voir Dossiers">
+                    <span class="material-symbols-outlined text-xl">folder_open</span>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -264,6 +264,83 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Dossiers du Patient -->
+<div *ngIf="showDossiersModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Dossiers Médicaux</h2>
+        <p class="text-slate-400 text-sm mt-1" *ngIf="selectedPatientForDossiers">
+          {{ selectedPatientForDossiers.prenom }} {{ selectedPatientForDossiers.nom }}
+        </p>
+      </div>
+      <button (click)="closeDossiersModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-6">
+      <!-- Loading State -->
+      <div *ngIf="loadingDossiers" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-slate-400 text-sm">Chargement des dossiers...</p>
+        </div>
+      </div>
+
+      <!-- Dossiers List -->
+      <div *ngIf="!loadingDossiers && selectedPatientDossiers.length > 0" class="space-y-3">
+        <div *ngFor="let dossier of selectedPatientDossiers" 
+          class="border border-slate-100 rounded-lg p-4 hover:border-primary hover:bg-slate-50 transition-all cursor-pointer"
+          (click)="voirDetailsDossier(dossier)">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h3 class="font-bold text-slate-800">{{ dossier.titre }}</h3>
+              <p class="text-slate-400 text-sm mt-1">{{ dossier.description }}</p>
+              <div class="flex items-center gap-4 mt-3">
+                <span [ngClass]="{
+                  'bg-emerald-50 text-emerald-600': dossier.type === 'CONSULTATION',
+                  'bg-rose-50 text-rose-600': dossier.type === 'URGENCE',
+                  'bg-blue-50 text-blue-600': dossier.type === 'SUIVI'
+                }" class="px-2 py-1 rounded text-[10px] font-bold uppercase">
+                  {{ dossier.type }}
+                </span>
+                <span [ngClass]="{
+                  'bg-emerald-50 text-emerald-600': dossier.statut === 'OUVERT',
+                  'bg-amber-50 text-amber-600': dossier.statut === 'EN_COURS',
+                  'bg-slate-100 text-slate-600': dossier.statut === 'FERME'
+                }" class="px-2 py-1 rounded text-[10px] font-bold uppercase">
+                  {{ dossier.statut }}
+                </span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 text-2xl">chevron_right</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loadingDossiers && selectedPatientDossiers.length === 0" class="text-center py-12">
+        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-4xl text-slate-200">folder_open</span>
+        </div>
+        <p class="text-slate-800 font-bold">Aucun dossier disponible</p>
+        <p class="text-slate-400 text-sm mt-1">Ce patient n'a pas encore partagé de dossiers avec vous.</p>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="border-t border-slate-100 px-6 py-4 flex justify-end gap-3">
+      <button (click)="closeDossiersModal()"
+        class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold hover:bg-slate-200 transition-all">
+        Fermer
+      </button>
     </div>
   </div>
 </div>

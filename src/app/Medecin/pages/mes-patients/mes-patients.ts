@@ -54,6 +54,12 @@ export class MesPatients implements OnInit {
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
+  // Dossiers du patient sélectionné
+  selectedPatientDossiers: any[] = [];
+  selectedPatientForDossiers: Patient | null = null;
+  loadingDossiers = false;
+  showDossiersModal = false;
+
   ngOnInit(): void {
     console.log('🔍 Initialisation de la page Mes Patients');
     console.log('👨‍⚕️ Utilisateur actuel:', this.authService.getCurrentUser());
@@ -330,4 +336,85 @@ export class MesPatients implements OnInit {
 
   // Propriété pour Math dans le template
   Math = Math;
+
+  /**
+   * Voir les dossiers d'un patient
+   */
+  voirDossiersPatient(patient: Patient): void {
+    console.log('📂 Voir dossiers du patient:', patient.nom);
+    this.selectedPatientForDossiers = patient;
+    this.loadingDossiers = true;
+    this.showDossiersModal = true;
+
+    this.medecinApi.getDossiersPatient(patient.idPatient).subscribe({
+      next: (response) => {
+        console.log('✅ Dossiers chargés:', response);
+        
+        if (response.success && response.data) {
+          // Gérer les deux formats possibles de réponse
+          if (Array.isArray(response.data)) {
+            this.selectedPatientDossiers = response.data;
+          } else if (response.data.dossiers) {
+            this.selectedPatientDossiers = response.data.dossiers;
+          } else {
+            this.selectedPatientDossiers = [];
+          }
+        } else {
+          this.selectedPatientDossiers = [];
+        }
+        
+        this.loadingDossiers = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des dossiers:', error);
+        this.selectedPatientDossiers = [];
+        this.loadingDossiers = false;
+      }
+    });
+  }
+
+  /**
+   * Fermer la modal des dossiers
+   */
+  closeDossiersModal(): void {
+    this.showDossiersModal = false;
+    this.selectedPatientForDossiers = null;
+    this.selectedPatientDossiers = [];
+  }
+
+  /**
+   * Voir les détails d'un dossier
+   */
+  voirDetailsDossier(dossier: any): void {
+    console.log('📋 Voir détails du dossier:', dossier);
+    
+    if (!this.selectedPatientForDossiers) return;
+
+    this.medecinApi.getDossierComplet(dossier.id).subscribe({
+      next: (response) => {
+        console.log('✅ Dossier complet chargé:', response);
+        
+        if (response.success && response.data) {
+          // Ouvrir une modal ou naviguer vers une page de détails
+          // Pour l'instant, afficher les détails dans la console
+          console.log('📋 Détails du dossier:');
+          console.log('   - Titre:', response.data.titre);
+          console.log('   - Type:', response.data.type);
+          console.log('   - Statut:', response.data.statut);
+          console.log('   - Documents:', response.data.documents?.length || 0);
+          console.log('   - Ordonnances:', response.data.ordonnances?.length || 0);
+          console.log('   - Allergies:', response.data.allergies?.length || 0);
+          console.log('   - Commentaires:', response.data.commentaires?.length || 0);
+          console.log('   - Accès:', response.data.acces?.length || 0);
+          
+          // TODO: Ouvrir une modal avec les détails complets du dossier
+          alert(`Dossier: ${response.data.titre}\n\nDocuments: ${response.data.documents?.length || 0}\nOrdonnances: ${response.data.ordonnances?.length || 0}\nAllergies: ${response.data.allergies?.length || 0}`);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement du dossier complet:', error);
+        alert('Erreur lors du chargement du dossier');
+      }
+    });
+  }
 }
