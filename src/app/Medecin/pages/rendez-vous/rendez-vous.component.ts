@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RendezVousService, RendezVous } from '../../../services/rendez-vous.service';
 import { MedecinApiService } from '../../services/medecin-api.service';
+import { AlertService } from '../../../services/alert.service';
+import Swal from 'sweetalert2';
 
 interface WeekDay {
   name: string;
@@ -30,6 +32,7 @@ export class RendezVousComponent implements OnInit {
   private rdvService = inject(RendezVousService);
   private medecinApi = inject(MedecinApiService);
   private router = inject(Router);
+  private alertService = inject(AlertService);
 
   rendezVousList: RendezVous[] = [];
   filteredRendezVous: RendezVous[] = [];
@@ -451,8 +454,13 @@ export class RendezVousComponent implements OnInit {
   }
 
   // Actions sur les rendez-vous
-  confirmerRdv(rdvId: string): void {
-    if (!confirm('Confirmer ce rendez-vous ?')) {
+  async confirmerRdv(rdvId: string): Promise<void> {
+    const confirmed = await this.alertService.confirm(
+      'Confirmer ce rendez-vous ?',
+      'Confirmation'
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -468,8 +476,21 @@ export class RendezVousComponent implements OnInit {
     });
   }
 
-  terminerRdv(rdvId: string): void {
-    const notes = prompt('Notes de consultation (optionnel):');
+  async terminerRdv(rdvId: string): Promise<void> {
+    const { value: notes } = await Swal.fire({
+      title: 'Notes de consultation',
+      input: 'textarea',
+      inputLabel: 'Notes de consultation (optionnel)',
+      inputPlaceholder: 'Entrez vos notes ici...',
+      showCancelButton: true,
+      confirmButtonText: 'Terminer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#1c74bc'
+    });
+
+    if (notes === undefined) {
+      return;
+    }
 
     this.rdvService.updateStatut(rdvId, 'TERMINE', notes || undefined).subscribe({
       next: () => {
@@ -483,8 +504,23 @@ export class RendezVousComponent implements OnInit {
     });
   }
 
-  annulerRdv(rdvId: string): void {
-    const raison = prompt('Raison de l\'annulation:');
+  async annulerRdv(rdvId: string): Promise<void> {
+    const { value: raison } = await Swal.fire({
+      title: 'Raison de l\'annulation',
+      input: 'textarea',
+      inputLabel: 'Raison de l\'annulation',
+      inputPlaceholder: 'Entrez la raison ici...',
+      showCancelButton: true,
+      confirmButtonText: 'Annuler le RDV',
+      cancelButtonText: 'Fermer',
+      confirmButtonColor: '#dc2626',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'La raison est requise';
+        }
+        return null;
+      }
+    });
 
     if (!raison) {
       return;
@@ -591,14 +627,10 @@ export class RendezVousComponent implements OnInit {
   }
 
   private showSuccessMessage(message: string): void {
-    // TODO: Implémenter un système de notification toast
-    console.log('✅ Succès:', message);
-    alert(message); // Temporaire
+    this.alertService.toast(message, 'success');
   }
 
   private showErrorMessage(message: string): void {
-    // TODO: Implémenter un système de notification toast
-    console.error('❌ Erreur:', message);
-    alert(message); // Temporaire
+    this.alertService.error(message);
   }
 }

@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MedecinApiService } from '../../services/medecin-api.service';
+import { AlertService } from '../../../services/alert.service';
+import Swal from 'sweetalert2';
 
 interface DemandeConnexion {
   id: string;
@@ -25,6 +27,7 @@ import { LoadingSpinnerComponent } from '../../../components/loading-spinner/loa
 })
 export class DemandesConnexion implements OnInit {
   private medecinApi = inject(MedecinApiService);
+  private alertService = inject(AlertService);
 
   demandesEnAttente: DemandeConnexion[] = [];
   filteredDemandes: DemandeConnexion[] = [];
@@ -123,11 +126,16 @@ export class DemandesConnexion implements OnInit {
     return `Il y a ${Math.ceil(diffDays / 30)} mois`;
   }
 
-  accepterDemande(connexionId: string): void {
+  async accepterDemande(connexionId: string): Promise<void> {
     const demande = this.demandesEnAttente.find(d => d.id === connexionId);
     if (!demande) return;
 
-    if (!confirm(`Voulez-vous accepter la demande de connexion de ${demande.nomPatient} ?`)) {
+    const confirmed = await this.alertService.confirm(
+      `Voulez-vous accepter la demande de connexion de ${demande.nomPatient} ?`,
+      'Confirmation d\'acceptation'
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -158,13 +166,31 @@ export class DemandesConnexion implements OnInit {
     });
   }
 
-  refuserDemande(connexionId: string): void {
+  async refuserDemande(connexionId: string): Promise<void> {
     const demande = this.demandesEnAttente.find(d => d.id === connexionId);
     if (!demande) return;
 
-    const raison = prompt('Raison du refus (optionnel):');
+    const { value: raison } = await Swal.fire({
+      title: 'Raison du refus',
+      input: 'textarea',
+      inputLabel: 'Raison du refus (optionnel)',
+      inputPlaceholder: 'Entrez la raison ici...',
+      showCancelButton: true,
+      confirmButtonText: 'Continuer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#1c74bc'
+    });
 
-    if (!confirm(`Voulez-vous refuser la demande de connexion de ${demande.nomPatient} ?`)) {
+    if (raison === undefined) {
+      return;
+    }
+
+    const confirmed = await this.alertService.confirm(
+      `Voulez-vous refuser la demande de connexion de ${demande.nomPatient} ?`,
+      'Confirmation de refus'
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -194,10 +220,15 @@ export class DemandesConnexion implements OnInit {
     });
   }
 
-  accepterToutesLesDemandes(): void {
+  async accepterToutesLesDemandes(): Promise<void> {
     if (this.demandesEnAttente.length === 0) return;
 
-    if (!confirm(`Voulez-vous accepter toutes les ${this.demandesEnAttente.length} demandes en attente ?`)) {
+    const confirmed = await this.alertService.confirm(
+      `Voulez-vous accepter toutes les ${this.demandesEnAttente.length} demandes en attente ?`,
+      'Confirmation d\'acceptation en masse'
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -241,12 +272,10 @@ export class DemandesConnexion implements OnInit {
   }
 
   private showSuccessMessage(message: string): void {
-    // Implémenter un système de notification toast
-    alert(message); // Temporaire
+    this.alertService.toast(message, 'success');
   }
 
   private showErrorMessage(message: string): void {
-    // Implémenter un système de notification toast
-    alert(message); // Temporaire
+    this.alertService.toast(message, 'error');
   }
 }

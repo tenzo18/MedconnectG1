@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { UploadService } from '../../../services/upload.service';
+import { AlertService } from '../../../services/alert.service';
 
 import { ChartCardComponent, LoadingSpinnerComponent } from '../../../components';
 
@@ -18,6 +19,7 @@ export class ProfilMedecin implements OnInit {
   private authService = inject(AuthService);
   private uploadService = inject(UploadService);
   private router = inject(Router);
+  private alertService = inject(AlertService);
 
   profilForm: FormGroup;
   passwordForm: FormGroup;
@@ -273,7 +275,7 @@ export class ProfilMedecin implements OnInit {
           this.uploading = false;
           this.uploadProgress = 0;
 
-          alert('Photo uploadée avec succès ! Note: La mise à jour du profil nécessite que le backend implémente la route PUT /api/auth/profile');
+          this.alertService.toast('Photo uploadée avec succès !', 'success');
 
           // Mettre à jour le profil avec la nouvelle photo (si la route existe)
           this.authService.updateProfile({ profilePicture: result.url }).subscribe({
@@ -296,8 +298,13 @@ export class ProfilMedecin implements OnInit {
     });
   }
 
-  onRemovePhoto(): void {
-    if (!confirm('Voulez-vous vraiment supprimer votre photo de profil ?')) {
+  async onRemovePhoto(): Promise<void> {
+    const confirmed = await this.alertService.confirm(
+      'Voulez-vous vraiment supprimer votre photo de profil ?',
+      'Confirmation de suppression'
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -307,18 +314,18 @@ export class ProfilMedecin implements OnInit {
     this.authService.updateProfile({ profilePicture: '' }).subscribe({
       next: () => {
         console.log('Photo de profil supprimée');
-        alert('Photo supprimée avec succès');
+        this.alertService.success('Photo supprimée avec succès');
       },
       error: (error) => {
         console.warn('Route de mise à jour du profil non disponible:', error);
-        alert('Photo supprimée localement. Note: Le backend doit implémenter PUT /api/auth/profile pour la suppression permanente');
+        this.alertService.toast('Photo supprimée localement', 'info');
       }
     });
   }
 
   onSaveProfil(): void {
     if (this.profilForm.invalid) {
-      alert("Veuillez remplir tous les champs obligatoires du profil.");
+      this.alertService.error('Veuillez remplir tous les champs obligatoires du profil.');
       return;
     }
 
@@ -336,7 +343,7 @@ export class ProfilMedecin implements OnInit {
     this.authService.updateProfile(profileData).subscribe({
       next: (response) => {
         console.log('Profil mis à jour:', response);
-        alert('Profil mis à jour avec succès !');
+        this.alertService.success('Profil mis à jour avec succès !');
         this.isSubmitting = false;
         this.loadProfile();
       },
@@ -350,12 +357,12 @@ export class ProfilMedecin implements OnInit {
 
   onSavePassword(): void {
     if (this.passwordForm.invalid) {
-      alert("Veuillez vérifier les champs du mot de passe (min. 8 caractères et les deux nouveaux doivent correspondre).");
+      this.alertService.error('Veuillez vérifier les champs du mot de passe (min. 8 caractères et les deux nouveaux doivent correspondre).');
       return;
     }
 
     if (this.passwordForm.errors && this.passwordForm.errors['mismatch']) {
-      alert("Le nouveau mot de passe et la confirmation ne correspondent pas.");
+      this.alertService.error('Le nouveau mot de passe et la confirmation ne correspondent pas.');
       return;
     }
 
@@ -365,7 +372,7 @@ export class ProfilMedecin implements OnInit {
     // Pour l'instant, on simule
     setTimeout(() => {
       this.isSubmitting = false;
-      alert('Mot de passe changé avec succès ! Vous devez vous reconnecter.');
+      this.alertService.success('Mot de passe changé avec succès ! Vous devez vous reconnecter.');
       this.passwordForm.reset();
       this.authService.logout();
     }, 1500);

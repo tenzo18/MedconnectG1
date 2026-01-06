@@ -7,6 +7,7 @@ import { MessagerieService, Conversation, Message } from '../../../services/mess
 import { SocketChatService, UserStatus, TypingIndicator } from '../../../services/socket-chat.service';
 import { AuthService } from '../../../services/auth.service';
 import { MedecinApiService } from '../../services/medecin-api.service';
+import { AlertService } from '../../../services/alert.service';
 
 interface ExtendedConversation extends Omit<Conversation, 'dernierMessage' | 'messagesNonLus'> {
   patientId: string;
@@ -45,6 +46,7 @@ export class Messagerie implements OnInit, OnDestroy {
   private medecinApi = inject(MedecinApiService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private alertService = inject(AlertService);
 
   @ViewChild('chatWindow') chatWindow!: ElementRef;
   @ViewChild('messageInput') messageInput!: ElementRef;
@@ -169,6 +171,16 @@ export class Messagerie implements OnInit, OnDestroy {
       this.handleMessageRead(data.messageId, data.userId);
     });
     this.socketSubscriptions.push(readSub);
+
+    // Écouter les mises à jour des compteurs (non implémenté dans le service mais l'événement existe)
+    // On peut écouter l'événement socket directement si le service ne l'expose pas encore
+    if (this.socketService['socket']) {
+      this.socketService['socket'].on('message:unread_count', (data: { count: number }) => {
+        console.log('🔢 Mise à jour compteur non lus:', data.count);
+        // Ici on pourrait mettre à jour un compteur global si nécessaire
+        // Pour les conversations, c'est handleNewMessage qui s'en charge
+      });
+    }
   }
 
   /**
@@ -198,11 +210,45 @@ export class Messagerie implements OnInit, OnDestroy {
       }
     }
 
-    // Actualiser la liste des conversations pour mettre à jour les compteurs
-    setTimeout(() => {
-      console.log('🔄 Actualisation des conversations après nouveau message');
+    // Mise à jour instantanée de la liste des conversations
+    this.updateConversationList(message);
+
+    // Actualiser en arrière-plan pour garanir la cohérence
+    // setTimeout(() => this.refreshConversations(), 2000);
+  }
+
+  /**
+   * Mettre à jour la liste des conversations instantanément
+   */
+  private updateConversationList(message: Message | ExtendedMessage): void {
+    const otherUserId = message.expediteurId === this.currentUserId ? message.destinataireId : message.expediteurId;
+
+    // Trouver la conversation existante
+    const existingConvIndex = this.conversations.findIndex(c => c.patientId === otherUserId);
+
+    if (existingConvIndex > -1) {
+      // Mettre à jour la conversation existante
+      const conv = this.conversations[existingConvIndex];
+      conv.dernierMessage = message.contenu;
+      conv.dernierMessageType = message.expediteurId === this.currentUserId ? 'sent' : 'received';
+      conv.dateCreation = new Date(message.dateEnvoi || message.createdAt || new Date());
+
+      // Incrémenter non-lus seulement si ce n'est pas la conversation active ET que ce n'est pas un message envoyé par moi
+      if (this.activeConversation?.id !== conv.id && message.expediteurId !== this.currentUserId) {
+        conv.nonLus = (conv.nonLus || 0) + 1;
+      }
+
+      // Déplacer en haut de la liste
+      this.conversations.splice(existingConvIndex, 1);
+      this.conversations.unshift(conv);
+    } else {
+      // Nouvelle conversation (cas rare via socket, mais possible)
+      // On rechargera la liste complète car il manque les infos utilisateurs
       this.refreshConversations();
-    }, 500);
+    }
+
+    // Mettre à jour la liste filtrée
+    this.filterConversations();
   }
 
   /**
@@ -258,7 +304,7 @@ export class Messagerie implements OnInit, OnDestroy {
     this.messagerieService.getConversations().subscribe({
       next: (response) => {
         console.log('📋 Réponse API conversations:', response);
-        
+
         if (response.success && response.data) {
           // Filtrer les conversations dont l'autre utilisateur est manquant pour éviter les erreurs
           const validConversations = response.data
@@ -395,7 +441,7 @@ export class Messagerie implements OnInit, OnDestroy {
     this.messagerieService.getMessages(patientId).subscribe({
       next: (response) => {
         console.log('📋 Messages reçus:', response);
-        
+
         if (response.success && response.data) {
           // Trier les messages par date (plus anciens en premier)
           const sortedMessages = response.data.sort((a: any, b: any) => {
@@ -422,7 +468,7 @@ export class Messagerie implements OnInit, OnDestroy {
             });
         }
         this.loadingMessages = false;
-        
+
         // Scroll vers le bas (messages les plus récents) après chargement
         setTimeout(() => {
           this.scrollToBottom();
@@ -473,6 +519,8 @@ export class Messagerie implements OnInit, OnDestroy {
       next: (response) => {
         console.log('✅ Message envoyé:', response);
 
+        let realMessage: ExtendedMessage | undefined;
+
         // Si envoyé via Socket.IO, le message sera reçu via handleNewMessage
         if (response.method === 'socket') {
           console.log('📡 Message envoyé via Socket.IO, attente de confirmation');
@@ -481,7 +529,7 @@ export class Messagerie implements OnInit, OnDestroy {
         } else {
           // Si envoyé via HTTP, remplacer le message temporaire par le vrai
           console.log('🌐 Message envoyé via HTTP, remplacement du temporaire');
-          const realMessage: ExtendedMessage = {
+          realMessage = {
             id: response.data?.message?.id || Date.now().toString(),
             expediteurId: this.currentUserId,
             destinataireId: destinataireId,
@@ -504,12 +552,23 @@ export class Messagerie implements OnInit, OnDestroy {
           }
         }
 
-        // Mettre à jour la conversation
         if (this.activeConversation) {
           this.activeConversation.dernierMessage = contenu;
           this.activeConversation.dernierMessageType = 'sent';
           this.activeConversation.dateCreation = new Date();
         }
+
+        // Mise à jour instantanée de la liste des conversations
+        let messageForUpdate: ExtendedMessage = tempMessage;
+
+        if (response.method !== 'socket' && typeof realMessage !== 'undefined') {
+          messageForUpdate = realMessage;
+        }
+
+        this.updateConversationList({
+          ...messageForUpdate,
+          dateEnvoi: messageForUpdate.dateEnvoi || messageForUpdate.createdAt || new Date().toISOString()
+        });
 
         this.newMessageContent = '';
         this.sending = false;
@@ -521,10 +580,10 @@ export class Messagerie implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('❌ Erreur envoi message:', error);
-        
+
         // Supprimer le message temporaire en cas d'erreur
         this.messages = this.messages.filter(m => m.id !== tempMessage.id);
-        
+
         this.showErrorMessage('Erreur lors de l\'envoi du message');
         this.sending = false;
       }
@@ -729,7 +788,6 @@ export class Messagerie implements OnInit, OnDestroy {
   }
 
   private showErrorMessage(message: string): void {
-    // Implémenter un système de notification toast
-    alert(message); // Temporaire
+    this.alertService.error(message);
   }
 }

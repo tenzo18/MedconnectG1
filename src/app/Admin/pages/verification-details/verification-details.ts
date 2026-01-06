@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { VerificationService, DoctorDetails } from '../../services/verification';
 import { LoadingSpinnerComponent } from '../../../components';
+import { AlertService } from '../../../services/alert.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-verification-details',
@@ -16,6 +18,7 @@ export class VerificationDetails implements OnInit {
   private router = inject(Router);
   private location = inject(Location);
   private verificationService = inject(VerificationService);
+  private alertService = inject(AlertService);
 
   doctor: DoctorDetails | undefined;
   loading: boolean = true;
@@ -53,8 +56,13 @@ export class VerificationDetails implements OnInit {
     this.location.back();
   }
 
-  onApprove(id: string): void {
-    if (!confirm("Voulez-vous vraiment approuver ce médecin ?")) {
+  async onApprove(id: string): Promise<void> {
+    const confirmed = await this.alertService.confirm(
+      "Voulez-vous vraiment approuver ce médecin ?",
+      "Confirmation d'approbation"
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -62,7 +70,7 @@ export class VerificationDetails implements OnInit {
     this.verificationService.approveDoctor(id).subscribe({
       next: (response) => {
         console.log('Médecin approuvé:', response);
-        alert("Médecin approuvé avec succès !");
+        this.alertService.success("Médecin approuvé avec succès !");
         this.router.navigate(['/admin/verifications']);
       },
       error: (error) => {
@@ -83,22 +91,43 @@ export class VerificationDetails implements OnInit {
           errorMessage = error.message;
         }
 
-        alert(errorMessage + '\n\nVoir la console pour plus de détails');
+        this.alertService.error(errorMessage, 'Voir la console pour plus de détails');
         this.processing = false;
       }
     });
   }
 
-  onRefuse(id: string): void {
-    const reason = prompt("Raison du refus (minimum 10 caractères) :");
+  async onRefuse(id: string): Promise<void> {
+    const { value: reason } = await Swal.fire({
+      title: 'Raison du refus',
+      input: 'textarea',
+      inputLabel: 'Veuillez indiquer la raison du refus (minimum 10 caractères)',
+      inputPlaceholder: 'Entrez la raison ici...',
+      inputAttributes: {
+        'aria-label': 'Raison du refus'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Continuer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#1c74bc',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 10) {
+          return 'La raison doit contenir au moins 10 caractères';
+        }
+        return null;
+      }
+    });
 
-    // Vérifier que la raison est fournie et fait au moins 10 caractères
-    if (!reason || reason.trim().length < 10) {
-      alert("La raison du refus doit contenir au moins 10 caractères.");
+    if (!reason) {
       return;
     }
 
-    if (!confirm("Êtes-vous sûr de vouloir refuser cette demande ?")) {
+    const confirmed = await this.alertService.confirm(
+      "Êtes-vous sûr de vouloir refuser cette demande ?",
+      "Confirmation de refus"
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -106,7 +135,7 @@ export class VerificationDetails implements OnInit {
     this.verificationService.refuseDoctor(id, reason.trim()).subscribe({
       next: (response) => {
         console.log('Médecin refusé:', response);
-        alert("Demande refusée avec succès.");
+        this.alertService.success("Demande refusée avec succès.");
         this.router.navigate(['/admin/verifications']);
       },
       error: (error) => {
@@ -120,7 +149,7 @@ export class VerificationDetails implements OnInit {
           errorMessage = error.error.message;
         }
 
-        alert(errorMessage);
+        this.alertService.error(errorMessage);
         this.processing = false;
       }
     });
