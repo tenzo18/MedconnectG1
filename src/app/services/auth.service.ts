@@ -316,6 +316,42 @@ export class AuthService {
   }
 
   /**
+   * Demander la réinitialisation du mot de passe
+   */
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/forgot-password`, { email }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Vérifier le code de réinitialisation
+   */
+  verifyResetCode(email: string, code: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/verify-reset-code`, { email, code }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Réinitialiser le mot de passe
+   */
+  resetPassword(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/reset-password`, data).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Demander un nouveau code 2FA
+   */
+  resend2FA(userId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/resend-2fa`, { userId }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Gestion des erreurs
    */
   private handleError(error: HttpErrorResponse) {

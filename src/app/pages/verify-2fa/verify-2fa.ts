@@ -19,6 +19,9 @@ export class Verify2FA implements OnInit {
   userId: string = '';
   loading: boolean = false;
   error: string = '';
+  timeLeft: number = 60;
+  canResend: boolean = false;
+  private timerInterval: any;
 
   ngOnInit(): void {
     const pendingUserId = sessionStorage.getItem('pendingUserId');
@@ -27,6 +30,21 @@ export class Verify2FA implements OnInit {
       return;
     }
     this.userId = pendingUserId;
+    this.startResendTimer();
+  }
+
+  startResendTimer(): void {
+    this.canResend = false;
+    this.timeLeft = 60;
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.timerInterval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        this.canResend = true;
+        clearInterval(this.timerInterval);
+      }
+    }, 1000);
   }
 
   handleInput(event: Event, index: number): void {
@@ -111,7 +129,22 @@ export class Verify2FA implements OnInit {
   }
 
   resendCode(): void {
-    alert('Fonctionnalité de renvoi de code à implémenter');
+    if (!this.canResend || this.loading) return;
+
+    this.loading = true;
+    this.authService.resend2FA(this.userId).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.startResendTimer();
+        this.digits = ['', '', '', ''];
+        const firstInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (firstInput) firstInput.focus();
+      },
+      error: (err: any) => {
+        this.loading = false;
+        this.error = err.message || 'Erreur lors du renvoi du code';
+      }
+    });
   }
 
   cancel(): void {

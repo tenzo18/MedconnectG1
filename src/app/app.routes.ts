@@ -25,12 +25,14 @@ import { RendezVousComponent } from './Medecin/pages/rendez-vous/rendez-vous.com
 
 // Importez les pages publiques
 import { Login } from './pages/login/login';
+import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { Verify2FA } from './pages/verify-2fa/verify-2fa';
 import { RegisterDoctor } from './pages/register-doctor/register-doctor';
 
 export const routes: Routes = [
   // Pages publiques
   { path: 'login', component: Login },
+  { path: 'forgot-password', component: ForgotPassword },
   { path: 'verify-2fa', component: Verify2FA },
   { path: 'register-doctor', component: RegisterDoctor },
 

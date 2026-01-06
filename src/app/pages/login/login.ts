@@ -23,6 +23,7 @@ export class Login {
   loading: boolean = false;
   showPassword: boolean = false;
   error: string = '';
+  rememberMe: boolean = false;
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
